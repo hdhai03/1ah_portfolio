@@ -281,8 +281,50 @@ if (graph) {
 }
 
 
-// burning hair uses SMIL <animate> inside the face SVG; stop it when the viewer prefers reduced motion
-if (reduceMotion) document.querySelectorAll('svg.face').forEach((s) => s.pauseAnimations());
+// ---------- Burning hair: path motion ----------
+// Every point of the white hair paths (anchors and bézier handles) is pushed by smooth sine "flames":
+// points near the top of the hair lick upward and sway, points near the hairline stay put.
+// It only reshapes the path; no filters.
+(function hairFlames() {
+  const paths = [...document.querySelectorAll('svg.face .face__hair')];
+  if (!paths.length || reduceMotion) return;
+  const TOP = -13;        // highest hair point (face SVG units)
+  const ROOT = 185;       // below this the hair doesn't move
+  const LIFT = 14;        // max upward reach of a flame tip
+  const SWAY = 5;         // max sideways sway
+  const shapes = paths.map((p) => {
+    const tokens = p.getAttribute('d').match(/[MCZ]|-?\d*\.?\d+(?:e-?\d+)?/gi);
+    const pts = [];
+    const tpl = [];        // command letters, or an index into pts for each x/y pair
+    for (let i = 0; i < tokens.length; i++) {
+      if (/[MCZ]/i.test(tokens[i])) { tpl.push(tokens[i]); continue; }
+      pts.push([+tokens[i], +tokens[i + 1]]);
+      tpl.push(pts.length - 1);
+      i++;
+    }
+    return { p, pts, tpl };
+  });
+  const weight = (y) => Math.min(Math.max((ROOT - y) / (ROOT - TOP), 0), 1) ** 1.6;
+  function frame(ms) {
+    const t = ms / 1000;
+    for (const s of shapes) {
+      let d = '';
+      for (const item of s.tpl) {
+        if (typeof item === 'string') { d += item; continue; }
+        const [x, y] = s.pts[item];
+        const w = weight(y);
+        // two travelling waves give tongues that rise and fall out of step along the hair
+        const flick = 0.5 + 0.5 * Math.sin(x * 0.045 + t * 4.2) * Math.cos(x * 0.021 - t * 2.3);
+        const dy = -LIFT * w * flick;
+        const dx = SWAY * w * Math.sin(y * 0.05 + x * 0.018 + t * 3.1);
+        d += `${(x + dx).toFixed(2)} ${(y + dy).toFixed(2)} `;
+      }
+      s.p.setAttribute('d', d);
+    }
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+}());
 
 // Menu overlay
 const menuBtn = document.getElementById('menuBtn');
