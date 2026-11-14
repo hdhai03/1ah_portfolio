@@ -146,9 +146,12 @@
           </svg>
         </button>
 
-        <img class="el hill hill--lime" src="assets/hill-lime.svg" width="360" height="157.333" alt="" />
-        <img class="el hill hill--left" src="assets/hill-left.svg" width="634.667" height="257.333" alt="" />
-        <img class="el hill hill--right" src="assets/hill-right.svg" width="880" height="290.667" alt="" />
+        <!-- Hills: cubic béziers from the Figma vectors, editable through the graph handles (main.js) -->
+        <svg class="el hills" width="1920" height="1080" viewBox="0 0 1920 1080" aria-hidden="true">
+          <path class="hill hill--lime" fill="#B8F53D" d="M672.668 902.333C766.001 902.333 766.001 749 843.335 749C920.668 749 926.001 902.333 1032.668 902.333H672.668Z" />
+          <path class="hill hill--left" fill="#6A5CFF" d="M158 902.333C339.333 902.333 379.333 649 482 649C584.667 649 632.667 902.333 792.667 902.333H158Z" />
+          <path class="hill hill--right" fill="#6A5CFF" d="M882 901.667C1158 901.667 1184.667 615 1322 615C1464.667 615 1531.333 901.667 1762 901.667H882Z" />
+        </svg>
 
         <div class="el ground"></div>
 
@@ -158,6 +161,9 @@
         <img class="el handle" style="left:1760px; --dur:1.6s; --d:-.1s" src="assets/handle-purple.svg" width="13.3333" height="13.3333" alt="" />
         <img class="el handle" style="left:666px; --dur:1.5s; --d:-.8s" src="assets/handle-lime.svg" width="13.3333" height="13.3333" alt="" />
         <img class="el handle" style="left:1026px; --dur:2s; --d:-1.3s" src="assets/handle-lime.svg" width="13.3333" height="13.3333" alt="" />
+
+        <!-- Graph-editor handles (Figma sample: 1.6px white line + 8px white dot); built by main.js -->
+        <svg class="el graph" id="graph" width="1920" height="1080" viewBox="0 0 1920 1080"></svg>
       </div>
     </section>
   </main>
