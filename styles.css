@@ -109,15 +109,13 @@ img { display: block; max-width: none; }
 .btn--left  { left: 150px; }
 .btn--left svg { transform: scaleX(-1); } /* Figma flips Group 89 horizontally */
 .btn--right { left: 1623px; }
-/* hover: arrows slide out in their direction and re-enter from the other side */
+/* hover: arrows nudge a little in their direction while fading out, then reappear */
 .btn:hover .btn__arrows,
-.btn:focus-visible .btn__arrows { animation: arrowSlide .9s cubic-bezier(.5, 0, .3, 1) infinite; }
-.btn:active .btn__arrows { animation-duration: .45s; }
-@keyframes arrowSlide {
-  0%   { transform: translateX(0); }
-  45%  { transform: translateX(72px); }
-  45.01% { transform: translateX(-72px); }
-  100% { transform: translateX(0); }
+.btn:focus-visible .btn__arrows { animation: arrowNudge 1s ease-out infinite; }
+@keyframes arrowNudge {
+  0%   { transform: translateX(0);    opacity: 1; }
+  70%  { transform: translateX(10px); opacity: 0; }
+  100% { transform: translateX(0);    opacity: 0; }
 }
 
 .hill--lime  { left: 672.67px; top: 745px; }
