@@ -28,8 +28,33 @@ img { display: block; max-width: none; }
   transform: scale(var(--ns));
   transform-origin: top left;
 }
-.logo img { transition: rotate .25s, translate .25s; }
-.logo:hover img { translate: 0 -2px; rotate: -4deg; }
+/* avatar cube: 4 side faces, turns one face at a time around the vertical axis */
+.logo { perspective: 420px; }
+.logo__cube {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+  animation: cubeStep 8s infinite;
+}
+.logo__face {
+  position: absolute;
+  inset: 0;
+  backface-visibility: hidden;
+}
+.logo__face--front { transform: rotateY(0deg)   translateZ(40.714px); }
+.logo__face--right { transform: rotateY(90deg)  translateZ(40.714px); }
+.logo__face--back  { transform: rotateY(180deg) translateZ(40.714px); }
+.logo__face--left  { transform: rotateY(270deg) translateZ(40.714px); }
+/* turn 90° (0.6s, eased), hold ~1.4s, repeat; the cube is pushed back by half its depth so the
+   front face sits at the original avatar size */
+@keyframes cubeStep {
+  0%, 17.5%   { transform: translateZ(-40.714px) rotateY(0deg); }
+  25%, 42.5%  { transform: translateZ(-40.714px) rotateY(-90deg); }
+  50%, 67.5%  { transform: translateZ(-40.714px) rotateY(-180deg); }
+  75%, 92.5%  { transform: translateZ(-40.714px) rotateY(-270deg); }
+  100%        { transform: translateZ(-40.714px) rotateY(-360deg); }
+}
+.logo__cube { animation-timing-function: cubic-bezier(.65, 0, .35, 1); }
 
 .nav {
   position: fixed;

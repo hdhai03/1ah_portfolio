@@ -67,7 +67,13 @@
   <!-- Header (Figma: Group 91 avatar top-left, MENU group top-right) -->
   <header>
     <a class="logo" href="#home" aria-label="Trang chủ">
-      <img src="assets/avatar.svg" width="81.4286" height="81.4286" alt="" />
+      <!-- 3D cube: the avatar on all four side faces, stepping around the vertical axis -->
+      <span class="logo__cube" aria-hidden="true">
+        <img class="logo__face logo__face--front" src="assets/avatar.svg" width="81.4286" height="81.4286" alt="" />
+        <img class="logo__face logo__face--right" src="assets/avatar.svg" width="81.4286" height="81.4286" alt="" />
+        <img class="logo__face logo__face--back" src="assets/avatar.svg" width="81.4286" height="81.4286" alt="" />
+        <img class="logo__face logo__face--left" src="assets/avatar.svg" width="81.4286" height="81.4286" alt="" />
+      </span>
     </a>
     <div class="nav">
       <button class="nav__menu" id="menuBtn" aria-expanded="false" aria-controls="menuPanel">
