@@ -298,44 +298,6 @@ if (graph) {
 }
 
 
-// ---------- Cursor trail: blinking pixel squares ----------
-// The screen is an invisible 16px grid: whenever the cursor enters a cell, a square lights up right there
-// (no scatter, it never moves), blinks briefly and goes out.
-(function cursorTrail() {
-  if (reduceMotion) return;
-  const layer = document.createElement('div');
-  layer.className = 'trail';
-  layer.setAttribute('aria-hidden', 'true');
-  document.body.append(layer);
-  const CELL = 16;
-  const SIZES = [12, 14, 16];         // close to the blinking squares around the portrait
-  const COLORS = ['#B8F53D', '#B8F53D', '#6A5CFF', '#6A5CFF', '#F2F2EE'];
-  const MAX = 20;                     // trail length
-  const pick = (a) => a[Math.floor(Math.random() * a.length)];
-  const lit = new Map();              // "col,row" -> square
-  let lastKey = '';
-  window.addEventListener('pointermove', (e) => {
-    if (e.pointerType !== 'mouse' && e.pointerType !== 'pen') return;
-    const col = Math.floor(e.clientX / CELL);
-    const row = Math.floor(e.clientY / CELL);
-    const key = `${col},${row}`;
-    if (key === lastKey) return;
-    lastKey = key;
-    lit.get(key)?.remove();           // re-entering a lit cell restarts it
-    if (layer.childElementCount >= MAX) layer.firstElementChild.remove();
-    const sq = document.createElement('i');
-    const size = pick(SIZES);
-    sq.style.width = sq.style.height = `${size}px`;
-    sq.style.background = pick(COLORS);
-    sq.style.left = `${col * CELL + (CELL - size) / 2}px`;
-    sq.style.top = `${row * CELL + (CELL - size) / 2}px`;
-    sq.style.setProperty('--life', `${(0.45 + Math.random() * 0.3).toFixed(2)}s`);
-    sq.addEventListener('animationend', () => { sq.remove(); if (lit.get(key) === sq) lit.delete(key); }, { once: true });
-    lit.set(key, sq);
-    layer.append(sq);
-  }, { passive: true });
-}());
-
 // ---------- Burning hair: path motion ----------
 // Every point of the white hair paths (anchors and bézier handles) is pushed by smooth sine "flames":
 // points near the top of the hair lick upward and sway, points near the hairline stay put.

@@ -11,26 +11,7 @@
 * { box-sizing: border-box; margin: 0; padding: 0; }
 html, body { background: var(--bg); color: var(--white); }
 /* custom cursor (lime arrow), hotspot at its tip */
-html { cursor: url(assets/cursor.svg) 0 0, auto; }
-
-/* cursor trail: blinking pixel squares left behind the mouse (main.js) */
-.trail { position: fixed; inset: 0; z-index: 90; pointer-events: none; overflow: hidden; }
-.trail i {
-  position: absolute;
-  display: block;
-  animation: trailBlink var(--life, .8s) steps(1, end) forwards;
-}
-@keyframes trailBlink {
-  0%   { opacity: 1; }
-  18%  { opacity: 0; }
-  30%  { opacity: 1; }
-  52%  { opacity: .25; }
-  64%  { opacity: 1; }
-  84%  { opacity: 0; }
-  92%  { opacity: .6; }
-  100% { opacity: 0; }
-}
-body {
+html { cursor: url(assets/cursor.svg) 0 0, auto; }body {
   font-family: "Phudu", system-ui, sans-serif;
   overflow-x: hidden;
 }
