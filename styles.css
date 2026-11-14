@@ -134,7 +134,12 @@ img { display: block; max-width: none; }
 /* Figma masks this fill with an identical circle (portrait-mask), so the fill is used as-is */
 .portrait { left: 590px; top: 159px; width: 740.667px; height: 740.667px; }
 .portrait img { position: absolute; inset: 0; }
-.px          { animation: px var(--dur, 1.4s) steps(1) var(--d, 0s) infinite; }
+/* .px (Figma squares around the portrait) blink at random, driven by main.js */
+
+/* random pixel squares (main.js) */
+.pixels { left: 0; top: 0; width: 1920px; height: 1080px; pointer-events: none; transition: opacity .6s ease .4s; }
+html.is-loading .pixels { opacity: 0; }
+.pixel { position: absolute; display: block; }
 .ring-dashed { left: 645.98px; top: 214.98px; animation: ldSpin 80s linear infinite; }
 .ring        { left: 589.08px; top: 158.08px; }
 .face        { left: 783.43px; top: 316px; overflow: visible; }
