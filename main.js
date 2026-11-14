@@ -164,6 +164,7 @@ function renderHill(h) {
   let d = `M${f(h.x0)} ${f(h.base)}`;
   for (const [t, v] of pts) d += `L${f(h.x0 + t)} ${f(h.base - v * h.SY)}`;
   h.path.setAttribute('d', `${d}L${f(h.x1)} ${f(h.base)}Z`);
+  h.lastPts = pts;                    // read by the timeline probe
   if (h.outline) h.outline.setAttribute('d', d.replace(/^M[^L]+/, `M${f(h.x0)} ${f(h.base - pts[0][1] * h.SY)}`));
 }
 
@@ -297,6 +298,161 @@ if (graph) {
   selectHill(HILLS[1]);   // the small lime hill starts selected; one hill is always selected (no deselect)
 }
 
+
+// ---------- AE-style timeline under the ground line ----------
+// The time ruler spans the same x-range as the hills (158 → 1762), so the playhead also reads the speed graph:
+// a probe rides the selected hill at the playhead's x. Layers are the site's sections (click to go there).
+// Playhead loops; drag it (or click the ruler) to scrub; Space plays/pauses.
+(function timeline() {
+  const svg = document.getElementById('timeline');
+  if (!svg) return;
+  const X0 = 158;
+  const X1 = 1762;
+  const W = X1 - X0;
+  const DUR = 8;                       // seconds
+  const FPS = 24;
+  const RULER_Y = 930;
+  const add = (tag, attrs, parent = svg) => {
+    const el = document.createElementNS(SVGNS, tag);
+    for (const [k, v] of Object.entries(attrs)) el.setAttribute(k, v);
+    parent.append(el);
+    return el;
+  };
+  const xAt = (t) => X0 + (W * t) / DUR;
+
+  // ruler: a tick every 4 frames, labelled every second
+  add('line', { x1: X0, y1: RULER_Y, x2: X1, y2: RULER_Y, class: 'tl-tick' });
+  for (let fr = 0; fr <= DUR * FPS; fr += 4) {
+    const x = xAt(fr / FPS);
+    const major = fr % FPS === 0;
+    add('line', { x1: x, y1: RULER_Y, x2: x, y2: RULER_Y - (major ? 10 : 5), class: `tl-tick${major ? ' tl-tick--major' : ''}` });
+    if (major && fr < DUR * FPS) {
+      add('text', { x: x + 4, y: RULER_Y - 4, class: 'tl-text tl-muted' }).textContent = `${String(fr / FPS).padStart(2, '0')}:00`;
+    }
+  }
+
+  // layers = sections
+  const LAYERS = [
+    { name: 'Home', href: '#home', from: 0, to: 0.34, color: '#B8F53D' },
+    { name: 'Works', href: '#works', from: 0.18, to: 0.55, color: '#6A5CFF' },
+    { name: 'About', href: '#about', from: 0.4, to: 0.7, color: '#F2F2EE' },
+    { name: 'Playground', href: '#playground', from: 0.58, to: 0.86, color: '#B8F53D' },
+    { name: 'Contact', href: '#contact', from: 0.74, to: 1, color: '#6A5CFF' },
+  ];
+  LAYERS.forEach((l, i) => {
+    const y = 940 + i * 27;
+    add('text', { x: 96, y: y + 15, class: 'tl-text tl-muted' }).textContent = String(i + 1).padStart(2, '0');
+    const a = add('a', { href: l.href, class: 'tl-layer', 'aria-label': `${l.name} layer` });
+    const x = X0 + W * l.from;
+    const w = W * (l.to - l.from);
+    add('rect', { x, y, width: w, height: 20, fill: l.color, stroke: l.color, class: 'tl-bar' }, a);
+    add('text', { x: x + 12, y: y + 14.5, fill: l.color }, a).textContent = l.name;
+    for (const kx of [x, x + w]) {
+      add('rect', { x: kx - 4, y: y + 6, width: 8, height: 8, fill: l.color, transform: `rotate(45 ${kx} ${y + 10})` }, a);
+    }
+  });
+
+  // timecode + fps (right of the ruler)
+  const tc = add('text', { x: 1782, y: RULER_Y - 2, class: 'tl-timecode' });
+  add('text', { x: 1782, y: RULER_Y + 18, class: 'tl-text tl-muted' }).textContent = `${FPS} fps`;
+
+  // playhead
+  const ruleHit = add('rect', { x: X0, y: 904, width: W, height: RULER_Y - 900, class: 'tl-ruler-hit' });
+  const ph = add('g', { class: 'tl-playhead' });
+  const phLine = add('line', { y1: 912, y2: 1076 }, ph);
+  const phHead = add('path', {}, ph);
+  const phHit = add('rect', { y: 904, width: 24, height: 172, class: 'tl-playhead-hit' }, ph);
+
+  // probe on the selected hill (drawn in the graph overlay so it sits with the curves)
+  const graphSvg = document.getElementById('graph');
+  const probe = add('circle', { r: 5, class: 'tl-probe' }, graphSvg);
+  const probeLabel = add('text', { class: 'tl-probe-label', 'text-anchor': 'middle' }, graphSvg);
+
+  let t = 0;
+  let playing = !reduceMotion;
+  let dragging = false;
+  let resumeTimer = null;
+
+  function speedAt(h, x) {
+    const pts = h.lastPts;
+    if (!pts || x < h.x0 || x > h.x1) return null;
+    const lt = x - h.x0;
+    for (let k = 1; k < pts.length; k++) {
+      if (pts[k][0] >= lt) {
+        const [t0, v0] = pts[k - 1];
+        const [t1, v1] = pts[k];
+        return v0 + ((v1 - v0) * (lt - t0)) / Math.max(t1 - t0, 1e-6);
+      }
+    }
+    return null;
+  }
+
+  function draw() {
+    const x = xAt(t);
+    phLine.setAttribute('x1', x);
+    phLine.setAttribute('x2', x);
+    phHead.setAttribute('d', `M${x - 6} 904H${x + 6}V912L${x} 918L${x - 6} 912Z`);
+    phHit.setAttribute('x', x - 12);
+    const frames = Math.floor(t * FPS);
+    tc.textContent = `0:00:${String(Math.floor(frames / FPS)).padStart(2, '0')}:${String(frames % FPS).padStart(2, '0')}`;
+
+    const h = HILLS.find((hh) => hh.path.classList.contains('is-selected'));
+    const v = h ? speedAt(h, x) : null;
+    const show = v !== null && root.classList.contains('is-loading') === false;
+    probe.style.display = probeLabel.style.display = show ? '' : 'none';
+    if (show) {
+      const y = h.base - v * h.SY;
+      probe.setAttribute('cx', x);
+      probe.setAttribute('cy', y);
+      probeLabel.setAttribute('x', x);
+      probeLabel.setAttribute('y', y - 14);
+      probeLabel.textContent = `SPEED ${Math.round(v * h.SY)}`;
+    }
+  }
+
+  let last = performance.now();
+  function tick(now) {
+    const dt = Math.min((now - last) / 1000, 0.1);
+    last = now;
+    if (playing && !dragging) t = (t + dt) % DUR;
+    draw();
+    requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
+
+  // scrubbing
+  const toStageX = (e) => {
+    const r = stage.getBoundingClientRect();
+    return (e.clientX - r.left) / (r.width / 1920);
+  };
+  const scrubTo = (e) => { t = Math.min(Math.max(((toStageX(e) - X0) / W) * DUR, 0), DUR - 1e-6); };
+  for (const el of [ruleHit, phHit]) {
+    el.addEventListener('pointerdown', (e) => {
+      e.preventDefault();
+      try { el.setPointerCapture(e.pointerId); } catch (_) { /* synthetic events */ }
+      dragging = true;
+      clearTimeout(resumeTimer);
+      scrubTo(e);
+      const move = (ev) => scrubTo(ev);
+      const up = () => {
+        dragging = false;
+        el.removeEventListener('pointermove', move);
+        el.removeEventListener('pointerup', up);
+        el.removeEventListener('pointercancel', up);
+      };
+      el.addEventListener('pointermove', move);
+      el.addEventListener('pointerup', up);
+      el.addEventListener('pointercancel', up);
+    });
+  }
+
+  // Space = play / pause (unless typing or a button/link has focus)
+  document.addEventListener('keydown', (e) => {
+    if (e.code !== 'Space' || e.target.closest('input, textarea, button, a, [role="slider"]')) return;
+    e.preventDefault();
+    playing = !playing;
+  });
+}());
 
 // ---------- Burning hair: path motion ----------
 // Every point of the white hair paths (anchors and bézier handles) is pushed by smooth sine "flames":

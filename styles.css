@@ -197,7 +197,28 @@ html.is-loading .graph__curve { stroke-dashoffset: 1; }
 .graph__key { stroke: #fff; stroke-width: 1.6; }
 @keyframes px { 50% { opacity: .15; } }
 
-.ground { left: -5px; top: 901px; width: 1930px; height: 181px; border: 1px dashed var(--ground-line); }
+.ground { left: -5px; top: 901px; width: 1930px; height: 181px; border: 1px dashed var(--ground-line); pointer-events: none; }
+
+/* ---------- AE-style timeline (main.js) ---------- */
+.timeline { left: 0; top: 0; overflow: visible; pointer-events: none; font-family: "IBM Plex Mono", ui-monospace, monospace; }
+.tl-text { font-size: 12px; fill: #ededea; letter-spacing: .04em; }
+.tl-muted { fill: #ededea; opacity: .45; }
+.tl-tick { stroke: #ededea; stroke-width: 1; opacity: .35; }
+.tl-tick--major { opacity: .7; }
+.tl-ruler-hit { fill: transparent; pointer-events: all; cursor: ew-resize; }
+.tl-layer { pointer-events: all; cursor: pointer; }
+.tl-layer .tl-bar { fill-opacity: .16; stroke-width: 1.2; transition: fill-opacity .2s; }
+.tl-layer:hover .tl-bar, .tl-layer:focus-visible .tl-bar { fill-opacity: .38; }
+.tl-layer:focus { outline: none; }
+.tl-layer text { font-size: 12px; text-transform: uppercase; letter-spacing: .06em; }
+.tl-playhead line { stroke: #b8f53d; stroke-width: 1.6; }
+.tl-playhead path { fill: #b8f53d; }
+.tl-playhead-hit { fill: transparent; pointer-events: all; cursor: ew-resize; }
+.tl-timecode { font-size: 16px; fill: #b8f53d; }
+.tl-probe { fill: #b8f53d; stroke: #fff; stroke-width: 1.6; }
+.tl-probe-label { font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: 12px; fill: #fff; letter-spacing: .04em; }
+.timeline { transition: opacity .5s ease 1s; }
+html.is-loading .timeline { opacity: 0; }
 
 /* motion */
 .float-a { animation: floatA 6s ease-in-out infinite; }
