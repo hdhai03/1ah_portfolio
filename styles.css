@@ -104,12 +104,21 @@ img { display: block; max-width: none; }
 .arrows--tr { left: 1623px; top: 229px; }
 .pointer    { left: 1414.25px; top: 543px; rotate: .23deg; }
 
-.btn { top: 499px; width: 144px; height: 82.667px; transition: transform .2s, filter .2s; }
+.btn { top: 499px; width: 144px; height: 82.667px; }
+.btn svg { display: block; overflow: visible; }
 .btn--left  { left: 150px; }
-.btn--left img { transform: scaleX(-1); }
+.btn--left svg { transform: scaleX(-1); } /* Figma flips Group 89 horizontally */
 .btn--right { left: 1623px; }
-.btn:hover  { transform: translateY(-4px); filter: drop-shadow(0 6px 0 #6e5bff); }
-.btn:active { transform: none; filter: none; }
+/* hover: arrows slide out in their direction and re-enter from the other side */
+.btn:hover .btn__arrows,
+.btn:focus-visible .btn__arrows { animation: arrowSlide .9s cubic-bezier(.5, 0, .3, 1) infinite; }
+.btn:active .btn__arrows { animation-duration: .45s; }
+@keyframes arrowSlide {
+  0%   { transform: translateX(0); }
+  45%  { transform: translateX(72px); }
+  45.01% { transform: translateX(-72px); }
+  100% { transform: translateX(0); }
+}
 
 .hill--lime  { left: 672.67px; top: 745px; }
 .hill--left  { left: 158px; top: 645px; }

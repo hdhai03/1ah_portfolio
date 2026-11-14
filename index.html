@@ -47,11 +47,36 @@
         <img class="el arrows arrows--tr" src="assets/top-arrows.svg" width="188" height="20.0002" alt="" />
         <img class="el pointer float-c" src="assets/pointer.svg" width="64" height="64" alt="" />
 
+        <!-- Buttons (Figma Group 88 / 89), inlined so the arrows can move on hover -->
+        <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+          <defs>
+            <clipPath id="btnClip"><rect x="7" y="9" width="128" height="66" /></clipPath>
+            <symbol id="btnArrows" overflow="visible">
+              <path d="M87.334 35.334L99.334 42.0007L87.334 48.6673V35.334Z" />
+              <path d="M66 35.334L78 42.0007L66 48.6673V35.334Z" />
+              <path d="M54 35.334L66 42.0007L54 48.6673V35.334Z" />
+              <path d="M42 35.334L54 42.0007L42 48.6673V35.334Z" />
+            </symbol>
+            <g id="btnBody">
+              <path d="M136 8H6V76H136V8Z" fill="#B8F53D" stroke-width="2" stroke="#F2F2EE" />
+              <path d="M12 0H0V12H12V0Z" fill="#6A5CFF" />
+              <path d="M144 0H132V12H144V0Z" fill="#6A5CFF" />
+              <path d="M12 70.667H0V82.667H12V70.667Z" fill="#6A5CFF" />
+              <path d="M144 70.667H132V82.667H144V70.667Z" fill="#6A5CFF" />
+            </g>
+          </defs>
+        </svg>
         <button class="el btn btn--left" id="prevBtn" aria-label="Previous">
-          <img src="assets/btn-left.svg" width="144" height="82.667" alt="" />
+          <svg width="144" height="82.667" viewBox="0 0 144 82.667" fill="none">
+            <use href="#btnBody" />
+            <g clip-path="url(#btnClip)"><g class="btn__arrows" fill="#050505"><use href="#btnArrows" /></g></g>
+          </svg>
         </button>
         <button class="el btn btn--right" id="nextBtn" aria-label="Next">
-          <img src="assets/btn-right.svg" width="144" height="82.667" alt="" />
+          <svg width="144" height="82.667" viewBox="0 0 144 82.667" fill="none">
+            <use href="#btnBody" />
+            <g clip-path="url(#btnClip)"><g class="btn__arrows" fill="#050505"><use href="#btnArrows" /></g></g>
+          </svg>
         </button>
 
         <img class="el hill hill--lime" src="assets/hill-lime.svg" width="360" height="157.333" alt="" />
