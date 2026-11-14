@@ -102,11 +102,11 @@ const MAX_INFLUENCE_SUM = 1.5;
 // the area is kept equal to the Figma hill, which is the quantity AE conserves.
 const HILLS = [
   { el: '.hill--left',  x0: 158,     x1: 792.667,  base: 902.333, h: 253.333, area: 70055.1,  i: [0.59, 0.56],
-    anchors: [150, 786] },
+    anchors: [150, 786],  key: '#6A5CFF' },
   { el: '.hill--lime',  x0: 672.668, x1: 1032.668, base: 902.333, h: 153.333, area: 25514.6,  i: [0.53, 0.58],
-    anchors: [666, 1026] },
+    anchors: [666, 1026], key: '#B8F53D' },
   { el: '.hill--right', x0: 882,     x1: 1762,     base: 901.667, h: 286.667, area: 106640.1, i: [0.60, 0.58],
-    anchors: [875, 1760] },
+    anchors: [875, 1760], key: '#6A5CFF' },
 ];
 
 const bez = (p0, p1, p2, p3, u) => {
@@ -139,8 +139,6 @@ HILLS.forEach((h) => {
   h.path = document.querySelector(h.el);
   // with D = 1 the area under the speed curve is 1, so SY = Figma area makes the drawn area match Figma
   h.SY = h.area;                      // px per (1/px) of speed
-  h.anchorEls = h.anchors.map((x) => [...document.querySelectorAll('.handle')]
-    .find((img) => parseFloat(img.style.left) === x));
 });
 
 const f = (n) => +n.toFixed(2);
@@ -158,7 +156,6 @@ const clamp = (v, a, b) => Math.min(Math.max(v, a), b);
 function buildHandle(h, side) {
   const dir = side === 0 ? 1 : -1;                    // start handle points right, end handle points left
   const kx = h.anchors[side] + 6.667;                 // keyframe (anchor square) centre x
-  const anchorEl = h.anchorEls[side];
   const g = document.createElementNS(SVGNS, 'g');
   g.setAttribute('class', 'graph__handle');
   g.setAttribute('tabindex', '0');
@@ -172,7 +169,13 @@ function buildHandle(h, side) {
   const hit = document.createElementNS(SVGNS, 'circle');
   hit.setAttribute('class', 'graph__hit');
   hit.setAttribute('r', '16');
-  g.append(line, dot, hit);
+  // keyframe square (Figma: 13.33px), drawn in SVG so its white stroke is exactly 1.6px (inside)
+  const keySq = document.createElementNS(SVGNS, 'rect');
+  keySq.setAttribute('class', 'graph__key');
+  keySq.setAttribute('fill', h.key);
+  keySq.setAttribute('width', '11.733');
+  keySq.setAttribute('height', '11.733');
+  g.append(line, keySq, dot, hit);
   h.group.append(g);
 
   const lineY = () => h.base + LINE_DY - h.s[side] * h.SY;
@@ -183,7 +186,8 @@ function buildHandle(h, side) {
     line.setAttribute('x1', kx); line.setAttribute('y1', dy);
     line.setAttribute('x2', dx); line.setAttribute('y2', dy);
     for (const c of [dot, hit]) { c.setAttribute('cx', dx); c.setAttribute('cy', dy); }
-    if (anchorEl) anchorEl.style.top = `${893 - h.s[side] * h.SY}px`;   // keyframe rides up with its speed
+    keySq.setAttribute('x', h.anchors[side] + 0.8);   // keyframe rides up with its speed
+    keySq.setAttribute('y', dy - 7 + 0.8);
     renderHill(h);
   }
   // drive both handles of the hill (the other side's curve changes too)
@@ -246,7 +250,6 @@ function selectHill(sel) {
     h.group.classList.toggle('is-selected', on);
     h.path.classList.toggle('is-selected', on);
     h.path.setAttribute('aria-pressed', String(on));
-    h.anchorEls.forEach((a) => a && a.classList.toggle('is-shown', on));
   });
 }
 if (graph) {

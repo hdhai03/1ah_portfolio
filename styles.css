@@ -160,9 +160,8 @@ html.is-loading .graph__curve { scale: 1 0; }
 .graph__handle:focus { outline: none; }
 .graph__handle:focus-visible .graph__dot { fill: var(--lime); stroke: #fff; stroke-width: 2; }
 
-/* keyframe squares only show for the selected hill */
-.handle     { top: 893px; visibility: hidden; }
-.handle.is-shown { visibility: visible; }
+/* keyframe squares (inside the selected hill's graph group): 13.33px with a 1.6px white inside stroke */
+.graph__key { stroke: #fff; stroke-width: 1.6; }
 @keyframes px { 50% { opacity: .15; } }
 
 .ground { left: -5px; top: 901px; width: 1930px; height: 181px; border: 1px dashed var(--ground-line); }
@@ -222,14 +221,14 @@ html.is-loading { overflow: hidden; }
 @keyframes ldSpread { to { transform: scale(1); } }
 
 /* ---------- HOME ENTRANCE (after the loader shrinks into the portrait) ---------- */
-.paper-tile, .orb, .dot, .arrows, .pointer, .btn, .handle {
+.paper-tile, .orb, .dot, .arrows, .pointer, .btn {
   transition: opacity .5s ease var(--rd, 0s), scale .7s cubic-bezier(.34, 1.56, .64, 1) var(--rd, 0s);
 }
 .hill { transform-origin: 50% 100%; transition: scale .8s cubic-bezier(.22, 1, .36, 1) var(--rd, 0s); }
 .nav, .logo { transition: opacity .5s ease var(--rd, 0s), translate .6s cubic-bezier(.22, 1, .36, 1) var(--rd, 0s); }
 html.is-loading .logo { opacity: 0; translate: 0 -24px; }
 .logo        { --rd: .55s; }
-html.is-loading :is(.paper-tile, .orb, .dot, .arrows, .pointer, .btn, .handle) { opacity: 0; scale: .4; }
+html.is-loading :is(.paper-tile, .orb, .dot, .arrows, .pointer, .btn) { opacity: 0; scale: .4; }
 html.is-loading .hill { scale: 1 0; }
 .graph { transition: opacity .5s ease .7s; }
 html.is-loading .graph { opacity: 0; }
@@ -241,7 +240,6 @@ html.is-loading .nav { opacity: 0; translate: 0 -24px; }
 .orb         { --rd: .3s; }
 .arrows      { --rd: .35s; }
 .dot         { --rd: .4s; }
-.handle      { --rd: .4s; }
 .pointer     { --rd: .45s; }
 .btn         { --rd: .5s; }
 .nav         { --rd: .55s; }
