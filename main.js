@@ -8,6 +8,7 @@ const root = document.documentElement;
 const DESIGN_W = 1920;
 const DESIGN_H = 1080;
 const MOBILE_VISIBLE_W = 1100; // on narrow screens, crop the sides and keep the portrait centred
+const CONTENT_H = 961;         // Home fits in one viewport: content ends with the timeline band (Figma y 780 + 181)
 
 function fit() {
   const w = window.innerWidth;
@@ -15,7 +16,10 @@ function fit() {
   let s;
   let left = 0;
   if (w >= 900) {
-    s = w / DESIGN_W;
+    // fill the width, but never taller than the screen: everything down to the bottom of the
+    // timeline band (y 961) must fit; below that is empty and may be cropped
+    s = Math.min(w / DESIGN_W, h / CONTENT_H);
+    left = (w - DESIGN_W * s) / 2;
   } else {
     s = Math.min(w / MOBILE_VISIBLE_W, (h * 0.8) / DESIGN_H);
     left = (w - DESIGN_W * s) / 2;

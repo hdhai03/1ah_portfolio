@@ -10,6 +10,8 @@
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
 html, body { background: var(--bg); color: var(--white); }
+/* Home lives in a single viewport: no vertical scrolling */
+html, body { height: 100%; overflow: hidden; overscroll-behavior: none; }
 /* custom cursor (lime arrow), hotspot at its tip */
 html { cursor: url(assets/cursor.svg) 0 0, auto; }body {
   font-family: "Phudu", system-ui, sans-serif;
@@ -113,7 +115,8 @@ img { display: block; max-width: none; }
 /* ---------- HERO STAGE ---------- */
 .hero {
   position: relative;
-  height: calc(1080px * var(--s));
+  height: 100vh;
+  height: 100dvh;
   overflow: hidden;
   background: var(--bg);
 }
@@ -198,7 +201,8 @@ html.is-loading .graph__curve { stroke-dashoffset: 1; }
 .graph__key { stroke: #fff; stroke-width: 1.6; }
 @keyframes px { 50% { opacity: .15; } }
 
-.ground { left: -5px; top: 780px; width: 1930px; height: 181px; background: var(--bg); border: 1px dashed var(--ground-line); pointer-events: none; }
+/* extends far past both sides so the line still spans the screen when the stage is narrower than it */
+.ground { left: -2000px; top: 780px; width: 5920px; height: 181px; background: var(--bg); border: 1px dashed var(--ground-line); pointer-events: none; }
 
 /* ---------- AE-style timeline (main.js) ---------- */
 .timeline { left: 0; top: 0; overflow: visible; pointer-events: none; font-family: "IBM Plex Mono", ui-monospace, monospace; }
@@ -297,7 +301,7 @@ html.is-loading .nav { opacity: 0; translate: 0 -24px; }
 .nav         { --rd: .55s; }
 
 @media (max-width: 899px) {
-  .hero { margin-top: 72px; }
+  .hero { margin-top: 72px; height: calc(100vh - 72px); height: calc(100dvh - 72px); }
 }
 
 @media (prefers-reduced-motion: reduce) {
