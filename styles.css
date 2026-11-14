@@ -114,7 +114,8 @@ img { display: block; max-width: none; }
 .hill--lime  { left: 672.67px; top: 745px; }
 .hill--left  { left: 158px; top: 645px; }
 .hill--right { left: 882px; top: 611px; }
-.handle      { top: 893px; }
+.handle      { top: 893px; animation: px var(--dur, 1.4s) steps(1) var(--d, 0s) infinite; }
+@keyframes px { 50% { opacity: .15; } }
 
 .ground { left: 0; top: 900px; width: 1920px; height: 180px; background: var(--ground); }
 

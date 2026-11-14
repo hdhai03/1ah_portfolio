@@ -1,4 +1,5 @@
 <svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="133.333" height="133.333" viewBox="0 0 133.333 133.333" fill="none" xmlns="http://www.w3.org/2000/svg">
+<style>#Vector_2,#Vector_3,#Vector_4{animation:px 1.4s steps(1) infinite}#Vector_3{animation-duration:1.8s;animation-delay:-.5s}#Vector_4{animation-duration:1.1s;animation-delay:-.8s}@keyframes px{0%,100%{opacity:1}50%{opacity:.15}}@media (prefers-reduced-motion:reduce){*{animation:none!important}}</style>
 <g id="orb">
 <path id="Vector" d="M66.6667 133.333C103.486 133.333 133.333 103.486 133.333 66.6667C133.333 29.8477 103.486 0 66.6667 0C29.8477 0 0 29.8477 0 66.6667C0 103.486 29.8477 133.333 66.6667 133.333Z" fill="#B8F53D"/>
 <path id="Vector_2" d="M48 40H32V56H48V40Z" fill="#6A5CFF"/>
