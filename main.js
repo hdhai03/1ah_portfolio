@@ -298,6 +298,42 @@ if (graph) {
 }
 
 
+// ---------- Cursor trail: blinking pixel squares ----------
+// Every ~18px of mouse travel drops a small square (snapped to an 8px grid) that blinks a few times and goes.
+(function cursorTrail() {
+  if (reduceMotion) return;
+  const layer = document.createElement('div');
+  layer.className = 'trail';
+  layer.setAttribute('aria-hidden', 'true');
+  document.body.append(layer);
+  const SIZES = [6, 8, 8, 10, 12];
+  const COLORS = ['#B8F53D', '#B8F53D', '#6A5CFF', '#6A5CFF', '#F2F2EE'];
+  const MAX = 48;
+  const pick = (a) => a[Math.floor(Math.random() * a.length)];
+  const snap = (v) => Math.round(v / 8) * 8;
+  let lastX = null;
+  let lastY = null;
+  window.addEventListener('pointermove', (e) => {
+    if (e.pointerType !== 'mouse' && e.pointerType !== 'pen') return;
+    if (lastX !== null && Math.hypot(e.clientX - lastX, e.clientY - lastY) < 18) return;
+    lastX = e.clientX;
+    lastY = e.clientY;
+    const count = Math.random() < 0.35 ? 2 : 1;
+    for (let k = 0; k < count; k++) {
+      if (layer.childElementCount >= MAX) layer.firstElementChild.remove();
+      const sq = document.createElement('i');
+      const size = pick(SIZES);
+      sq.style.width = sq.style.height = `${size}px`;
+      sq.style.background = pick(COLORS);
+      sq.style.left = `${snap(e.clientX + (Math.random() - 0.5) * 28)}px`;
+      sq.style.top = `${snap(e.clientY + (Math.random() - 0.5) * 28)}px`;
+      sq.style.setProperty('--life', `${(0.6 + Math.random() * 0.5).toFixed(2)}s`);
+      sq.addEventListener('animationend', () => sq.remove(), { once: true });
+      layer.append(sq);
+    }
+  }, { passive: true });
+}());
+
 // ---------- Burning hair: path motion ----------
 // Every point of the white hair paths (anchors and bézier handles) is pushed by smooth sine "flames":
 // points near the top of the hair lick upward and sway, points near the hairline stay put.
@@ -356,7 +392,7 @@ document.addEventListener('keydown', (e) => { if (e.key === 'Escape') setMenu(fa
 
 // Subtle parallax on pointer move
 const stage = document.getElementById('stage');
-const layers = [['.paper-tile', 12], ['.orb', -18], ['.dot', 10], ['.pointer', -14], ['.portrait-group', 4]];
+const layers = [['.paper-tile', 12], ['.orb', -18], ['.dot', 10], ['.portrait-group', 4]];
 if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
   window.addEventListener('pointermove', (e) => {
     if (root.classList.contains('is-loading')) return;

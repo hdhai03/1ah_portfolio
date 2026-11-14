@@ -10,6 +10,26 @@
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
 html, body { background: var(--bg); color: var(--white); }
+/* custom cursor (lime arrow), hotspot at its tip */
+html { cursor: url(assets/cursor.svg) 0 0, auto; }
+
+/* cursor trail: blinking pixel squares left behind the mouse (main.js) */
+.trail { position: fixed; inset: 0; z-index: 90; pointer-events: none; overflow: hidden; }
+.trail i {
+  position: absolute;
+  display: block;
+  animation: trailBlink var(--life, .8s) steps(1, end) forwards;
+}
+@keyframes trailBlink {
+  0%   { opacity: 1; }
+  18%  { opacity: 0; }
+  30%  { opacity: 1; }
+  52%  { opacity: .25; }
+  64%  { opacity: 1; }
+  84%  { opacity: 0; }
+  92%  { opacity: .6; }
+  100% { opacity: 0; }
+}
 body {
   font-family: "Phudu", system-ui, sans-serif;
   overflow-x: hidden;
@@ -143,7 +163,6 @@ img { display: block; max-width: none; }
 .dot        { left: 1464px; top: 402px; }
 .arrows--tl { left: 96px; top: 159px; }
 .arrows--tr { left: 1623px; top: 229px; }
-.pointer    { left: 1414.25px; top: 543px; rotate: .23deg; }
 
 .btn { top: 499px; width: 144px; height: 82.667px; }
 .btn svg { display: block; overflow: visible; }
@@ -202,9 +221,7 @@ html.is-loading .graph__curve { stroke-dashoffset: 1; }
 /* motion */
 .float-a { animation: floatA 6s ease-in-out infinite; }
 .float-b { animation: floatA 7s ease-in-out -2s infinite; }
-.float-c { animation: floatC 5s ease-in-out infinite; }
 @keyframes floatA { 50% { transform: translateY(-14px); } }
-@keyframes floatC { 50% { transform: translate(-8px, -10px) rotate(-8deg); } }
 .arrows { animation: blink 1.6s steps(1) infinite; }
 @keyframes blink { 50% { opacity: .5; } }
 
@@ -254,13 +271,13 @@ html.is-loading { overflow: hidden; }
 @keyframes ldSpread { to { transform: scale(1); } }
 
 /* ---------- HOME ENTRANCE (after the loader shrinks into the portrait) ---------- */
-.paper-tile, .orb, .dot, .arrows, .pointer, .btn {
+.paper-tile, .orb, .dot, .arrows, .btn {
   transition: opacity .5s ease var(--rd, 0s), scale .7s cubic-bezier(.34, 1.56, .64, 1) var(--rd, 0s);
 }
 .nav, .logo { transition: opacity .5s ease var(--rd, 0s), translate .6s cubic-bezier(.22, 1, .36, 1) var(--rd, 0s); }
 html.is-loading .logo { opacity: 0; translate: 0 -24px; }
 .logo        { --rd: .55s; }
-html.is-loading :is(.paper-tile, .orb, .dot, .arrows, .pointer, .btn) { opacity: 0; scale: .4; }
+html.is-loading :is(.paper-tile, .orb, .dot, .arrows, .btn) { opacity: 0; scale: .4; }
 html.is-loading .hill { fill-opacity: 0; }
 .graph { transition: opacity .4s ease 1.3s; }   /* handles after the hills have filled */
 html.is-loading .graph { opacity: 0; }
@@ -272,7 +289,6 @@ html.is-loading .nav { opacity: 0; translate: 0 -24px; }
 .orb         { --rd: .3s; }
 .arrows      { --rd: .35s; }
 .dot         { --rd: .4s; }
-.pointer     { --rd: .45s; }
 .btn         { --rd: .5s; }
 .nav         { --rd: .55s; }
 
