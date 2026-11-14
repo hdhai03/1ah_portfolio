@@ -112,7 +112,22 @@ img { display: block; max-width: none; }
 .px          { animation: px var(--dur, 1.4s) steps(1) var(--d, 0s) infinite; }
 .ring-dashed { left: 645.98px; top: 214.98px; animation: ldSpin 80s linear infinite; }
 .ring        { left: 589.08px; top: 158.08px; }
-.face        { left: 783.43px; top: 316px; }
+.face        { left: 783.43px; top: 316px; overflow: visible; }
+
+/* burning hair: flame tongues (copies of the hair, displaced by #fireTongue) rise and fade */
+.fire__tongue {
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+  opacity: 0;
+  animation: flame 1.5s cubic-bezier(.3, 0, .6, 1) infinite;
+}
+.fire__tongue--2 { animation-delay: -.5s; animation-duration: 1.7s; }
+.fire__tongue--3 { animation-delay: -1s; animation-duration: 1.3s; }
+@keyframes flame {
+  0%   { transform: translateY(6px) scaleY(.94); opacity: 0; }
+  20%  { opacity: .6; }
+  100% { transform: translateY(-28px) scaleY(1.2); opacity: 0; }
+}
 
 .orb        { left: 1347px; top: 149px; }
 .dot        { left: 1464px; top: 402px; }

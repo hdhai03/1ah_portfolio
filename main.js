@@ -281,6 +281,9 @@ if (graph) {
 }
 
 
+// burning hair uses SMIL <animate> inside the face SVG; stop it when the viewer prefers reduced motion
+if (reduceMotion) document.querySelectorAll('svg.face').forEach((s) => s.pauseAnimations());
+
 // Menu overlay
 const menuBtn = document.getElementById('menuBtn');
 const menuPanel = document.getElementById('menuPanel');
