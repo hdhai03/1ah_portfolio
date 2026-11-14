@@ -73,9 +73,9 @@ function finishLoading() {
     [{ clipPath: `circle(${R}px at ${cx}px ${cy}px)` }, { clipPath: `circle(${r}px at ${cx}px ${cy}px)` }],
     timing,
   );
-  // start revealing Home a little before the circle lands
-  setTimeout(() => root.classList.remove('is-loading'), 750);
+  // reveal Home only once the circle has landed (hills then draw in: stroke first, then fill)
   shrink.finished.then(() => {
+    root.classList.remove('is-loading');
     loader.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 250, fill: 'forwards' })
       .finished.then(() => loader.remove());
   });
@@ -264,6 +264,7 @@ if (graph) {
     // white stroke on every hill, placed right above its own fill so hill overlaps stay correct
     h.outline = document.createElementNS(SVGNS, 'path');
     h.outline.setAttribute('class', `graph__curve ${h.el.slice(1)}`);   // shares the hill's entrance delay
+    h.outline.setAttribute('pathLength', '1');                          // trim-path entrance (styles.css)
     h.path.after(h.outline);
     graph.append(h.group);
     buildHandle(h, 0);
