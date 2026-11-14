@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Portfolio 2027</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Phudu:wght@500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <!-- Nav (Figma: MENU group + avatar, top-right of the Home frame) -->
+  <header class="nav">
+    <button class="nav__menu" id="menuBtn" aria-expanded="false" aria-controls="menuPanel">
+      <img class="nav__menu-bg" src="assets/menu-bg.svg" width="138" height="57" alt="" />
+      <span class="nav__label">MENU</span>
+      <img class="nav__burger" src="assets/menu-burger.svg" width="44" height="44" alt="" />
+    </button>
+    <a class="nav__avatar" href="#home" aria-label="Trang chủ">
+      <img class="nav__avatar-bg" src="assets/avatar-bg.svg" width="57" height="57" alt="" />
+      <img class="nav__avatar-face" src="assets/avatar-face.svg" width="36.3642" height="43.7825" alt="" />
+    </a>
+  </header>
+
+  <nav class="menu" id="menuPanel" hidden>
+    <ul>
+      <li><a href="#home">Home</a></li>
+      <li><a href="#works">Works</a></li>
+      <li><a href="#about">About</a></li>
+      <li><a href="#playground">Playground</a></li>
+      <li><a href="#contact">Contact</a></li>
+    </ul>
+  </nav>
+
+  <main>
+    <!-- Home hero: 1920 x 1080 design stage, scaled to the viewport by main.js -->
+    <section class="hero" id="home" aria-label="Home">
+      <div class="stage" id="stage">
+        <img class="el paper-tile float-a" src="assets/paper-tile.svg" width="186.999" height="188" alt="" />
+
+        <img class="el portrait" src="assets/portrait.svg" width="742.512" height="742.512" alt="Chân dung minh hoạ" />
+
+        <img class="el orb float-b" src="assets/orb.svg" width="133.333" height="133.333" alt="" />
+        <img class="el dot float-a" src="assets/dot.svg" width="32" height="32" alt="" />
+        <img class="el arrows arrows--tl" src="assets/top-arrows.svg" width="188" height="20.0002" alt="" />
+        <img class="el arrows arrows--tr" src="assets/top-arrows.svg" width="188" height="20.0002" alt="" />
+        <img class="el pointer float-c" src="assets/pointer.svg" width="64" height="64" alt="" />
+
+        <button class="el btn btn--left" id="prevBtn" aria-label="Previous">
+          <img src="assets/btn-left.svg" width="144" height="82.667" alt="" />
+        </button>
+        <button class="el btn btn--right" id="nextBtn" aria-label="Next">
+          <img src="assets/btn-right.svg" width="144" height="82.667" alt="" />
+        </button>
+
+        <img class="el hill hill--lime" src="assets/hill-lime.svg" width="360" height="157.333" alt="" />
+        <img class="el hill hill--left" src="assets/hill-left.svg" width="634.667" height="257.333" alt="" />
+        <img class="el handle" style="left:150px" src="assets/handle-purple.svg" width="13.3333" height="13.3333" alt="" />
+        <img class="el handle" style="left:786px" src="assets/handle-purple.svg" width="13.3333" height="13.3333" alt="" />
+        <img class="el handle" style="left:875px" src="assets/handle-purple.svg" width="13.3333" height="13.3333" alt="" />
+        <img class="el handle" style="left:1760px" src="assets/handle-purple.svg" width="13.3333" height="13.3333" alt="" />
+        <img class="el handle" style="left:666px" src="assets/handle-lime.svg" width="13.3333" height="13.3333" alt="" />
+        <img class="el handle" style="left:1026px" src="assets/handle-lime.svg" width="13.3333" height="13.3333" alt="" />
+        <img class="el hill hill--right" src="assets/hill-right.svg" width="880" height="290.667" alt="" />
+
+        <div class="el ground"></div>
+      </div>
+    </section>
+  </main>
+
+  <script src="main.js"></script>
+</body>
+</html>

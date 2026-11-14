@@ -1,0 +1,136 @@
+/* Values come from the Figma "Home" frame (node 2021:1884, 1920 x 1080). */
+:root {
+  --bg: #111;
+  --ground: #000;
+  --lime: #c3f53c;
+  --white: #fff;
+  --s: 1;   /* stage scale, set by main.js */
+  --ns: 1;  /* nav scale, set by main.js */
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { background: var(--bg); color: var(--white); }
+body {
+  font-family: "Phudu", system-ui, sans-serif;
+  overflow-x: hidden;
+}
+button { font: inherit; cursor: pointer; border: 0; background: none; color: inherit; padding: 0; }
+img { display: block; max-width: none; }
+
+/* ---------- NAV (198 x 57 design units, pinned top-right) ---------- */
+.nav {
+  position: fixed;
+  z-index: 50;
+  top: calc(27.5px * var(--s));
+  right: calc(99.5px * var(--s));
+  width: 198px;
+  height: 57px;
+  transform: scale(var(--ns));
+  transform-origin: top right;
+}
+.nav > * { position: absolute; top: 0; }
+.nav__menu { left: 0; width: 138px; height: 57px; }
+.nav__menu-bg { position: absolute; inset: 0; }
+.nav__label {
+  position: absolute;
+  left: 17.5px;
+  top: 21.5px;
+  font-weight: 500;
+  font-size: 20px;
+  line-height: 14px;
+  height: 14px;
+  white-space: nowrap;
+  text-box: trim-both cap alphabetic;
+}
+.nav__burger { position: absolute; left: 82.5px; top: 6.5px; transition: transform .25s; }
+.nav__menu:hover .nav__burger { transform: rotate(-8deg); }
+.nav__menu[aria-expanded="true"] .nav__burger { transform: rotate(90deg); }
+
+.nav__avatar { left: 141px; width: 57px; height: 57px; transition: transform .25s; }
+.nav__avatar-bg { position: absolute; inset: 0; }
+.nav__avatar-face { position: absolute; left: 10.5px; top: 6.5px; }
+.nav__avatar:hover { transform: translateY(-2px) rotate(4deg); }
+
+/* ---------- MENU OVERLAY ---------- */
+.menu {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  display: grid;
+  place-items: center;
+  background: rgba(10, 10, 10, .94);
+  animation: fade .25s ease;
+}
+.menu[hidden] { display: none; }
+.menu ul { list-style: none; text-align: center; }
+.menu a {
+  display: inline-block;
+  padding: .1em .3em;
+  color: var(--white);
+  text-decoration: none;
+  font-weight: 700;
+  font-size: clamp(40px, 7vw, 96px);
+  line-height: 1.1;
+  text-transform: uppercase;
+  transition: color .2s, transform .2s;
+}
+.menu a:hover { color: var(--lime); transform: translateX(8px); }
+@keyframes fade { from { opacity: 0; } }
+
+/* ---------- HERO STAGE ---------- */
+.hero {
+  position: relative;
+  height: calc(1080px * var(--s));
+  overflow: hidden;
+  background: var(--bg);
+}
+.stage {
+  position: absolute;
+  top: 0;
+  left: var(--stage-left, 0px);
+  width: 1920px;
+  height: 1080px;
+  transform: scale(var(--s));
+  transform-origin: 0 0;
+}
+.el { position: absolute; }
+
+/* positions = Figma x / y (minus stroke bleed where the SVG is larger than its slot) */
+.paper-tile { left: 484px; top: 188px; }
+.portrait   { left: 589.08px; top: 158.08px; }
+.orb        { left: 1347px; top: 149px; }
+.dot        { left: 1464px; top: 402px; }
+.arrows--tl { left: 96px; top: 129px; }
+.arrows--tr { left: 1623px; top: 229px; }
+.pointer    { left: 1414.25px; top: 543px; rotate: .23deg; }
+
+.btn { top: 499px; width: 144px; height: 82.667px; transition: transform .2s, filter .2s; }
+.btn--left  { left: 150px; }
+.btn--left img { transform: scaleX(-1); }
+.btn--right { left: 1623px; }
+.btn:hover  { transform: translateY(-4px); filter: drop-shadow(0 6px 0 #6e5bff); }
+.btn:active { transform: none; filter: none; }
+
+.hill--lime  { left: 672.67px; top: 745px; }
+.hill--left  { left: 158px; top: 645px; }
+.hill--right { left: 882px; top: 611px; }
+.handle      { top: 893px; }
+
+.ground { left: 0; top: 900px; width: 1920px; height: 180px; background: var(--ground); }
+
+/* motion */
+.float-a { animation: floatA 6s ease-in-out infinite; }
+.float-b { animation: floatA 7s ease-in-out -2s infinite; }
+.float-c { animation: floatC 5s ease-in-out infinite; }
+@keyframes floatA { 50% { transform: translateY(-14px); } }
+@keyframes floatC { 50% { transform: translate(-8px, -10px) rotate(-8deg); } }
+.arrows { animation: blink 1.6s steps(1) infinite; }
+@keyframes blink { 50% { opacity: .5; } }
+
+@media (max-width: 899px) {
+  .hero { margin-top: 72px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+}
