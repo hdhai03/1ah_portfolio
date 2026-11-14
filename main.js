@@ -299,16 +299,16 @@ if (graph) {
 
 
 // ---------- Cursor trail: blinking pixel squares ----------
-// Every ~18px of mouse travel drops a small square (snapped to an 8px grid) that blinks a few times and goes.
+// Every ~18px of mouse travel drops a square (snapped to an 8px grid) that blinks briefly and goes.
 (function cursorTrail() {
   if (reduceMotion) return;
   const layer = document.createElement('div');
   layer.className = 'trail';
   layer.setAttribute('aria-hidden', 'true');
   document.body.append(layer);
-  const SIZES = [6, 8, 8, 10, 12];
+  const SIZES = [12, 14, 16, 18];    // close to the blinking squares around the portrait
   const COLORS = ['#B8F53D', '#B8F53D', '#6A5CFF', '#6A5CFF', '#F2F2EE'];
-  const MAX = 48;
+  const MAX = 12;                     // short trail
   const pick = (a) => a[Math.floor(Math.random() * a.length)];
   const snap = (v) => Math.round(v / 8) * 8;
   let lastX = null;
@@ -318,16 +318,15 @@ if (graph) {
     if (lastX !== null && Math.hypot(e.clientX - lastX, e.clientY - lastY) < 18) return;
     lastX = e.clientX;
     lastY = e.clientY;
-    const count = Math.random() < 0.35 ? 2 : 1;
-    for (let k = 0; k < count; k++) {
+    {
       if (layer.childElementCount >= MAX) layer.firstElementChild.remove();
       const sq = document.createElement('i');
       const size = pick(SIZES);
       sq.style.width = sq.style.height = `${size}px`;
       sq.style.background = pick(COLORS);
-      sq.style.left = `${snap(e.clientX + (Math.random() - 0.5) * 28)}px`;
-      sq.style.top = `${snap(e.clientY + (Math.random() - 0.5) * 28)}px`;
-      sq.style.setProperty('--life', `${(0.6 + Math.random() * 0.5).toFixed(2)}s`);
+      sq.style.left = `${snap(e.clientX + (Math.random() - 0.5) * 20)}px`;
+      sq.style.top = `${snap(e.clientY + (Math.random() - 0.5) * 20)}px`;
+      sq.style.setProperty('--life', `${(0.3 + Math.random() * 0.2).toFixed(2)}s`);
       sq.addEventListener('animationend', () => sq.remove(), { once: true });
       layer.append(sq);
     }
