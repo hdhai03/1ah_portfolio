@@ -308,7 +308,7 @@ if (graph) {
   document.body.append(layer);
   const SIZES = [12, 14, 16, 18];    // close to the blinking squares around the portrait
   const COLORS = ['#B8F53D', '#B8F53D', '#6A5CFF', '#6A5CFF', '#F2F2EE'];
-  const MAX = 12;                     // short trail
+  const MAX = 20;                     // trail length
   const pick = (a) => a[Math.floor(Math.random() * a.length)];
   const snap = (v) => Math.round(v / 8) * 8;
   let lastX = null;
@@ -326,7 +326,7 @@ if (graph) {
       sq.style.background = pick(COLORS);
       sq.style.left = `${snap(e.clientX + (Math.random() - 0.5) * 20)}px`;
       sq.style.top = `${snap(e.clientY + (Math.random() - 0.5) * 20)}px`;
-      sq.style.setProperty('--life', `${(0.3 + Math.random() * 0.2).toFixed(2)}s`);
+      sq.style.setProperty('--life', `${(0.45 + Math.random() * 0.3).toFixed(2)}s`);
       sq.addEventListener('animationend', () => sq.remove(), { once: true });
       layer.append(sq);
     }
