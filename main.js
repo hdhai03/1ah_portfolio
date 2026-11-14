@@ -322,7 +322,7 @@ if (graph) {
       if (moves && Math.random() < 0.45) place(el);                      // reappear elsewhere
       el.style.opacity = '1';
     }
-    setTimeout(() => blink(el, moves), rand(500, 3000));
+    setTimeout(() => blink(el, moves), rand(150, 1600));
   }
   for (let i = 0; i < COUNT; i++) {
     const sq = document.createElement('i');
@@ -333,9 +333,9 @@ if (graph) {
     sq.style.opacity = Math.random() < 0.5 ? '1' : '0';
     place(sq);
     layer.append(sq);
-    setTimeout(() => blink(sq, true), rand(0, 3000));
+    setTimeout(() => blink(sq, true), rand(0, 1600));
   }
-  document.querySelectorAll('.portrait-group .px').forEach((sq) => setTimeout(() => blink(sq, false), rand(0, 3000)));
+  document.querySelectorAll('.portrait-group .px').forEach((sq) => setTimeout(() => blink(sq, false), rand(0, 1200)));
 }());
 
 // ---------- Burning hair: path motion ----------
