@@ -1,3 +1,8 @@
+// Always start at the top: the loader is fixed to the viewport, so a restored scroll position on reload
+// would put Home out of line with it.
+if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+window.scrollTo(0, 0);
+
 // Scale the 1920x1080 design stage to the viewport.
 const root = document.documentElement;
 const DESIGN_W = 1920;
@@ -57,6 +62,8 @@ function finishLoading() {
   const s = parseFloat(getComputedStyle(root).getPropertyValue('--s')) || 1;
   const stageLeft = parseFloat(getComputedStyle(root).getPropertyValue('--stage-left')) || 0;
   const heroTop = document.getElementById('home').getBoundingClientRect().top;
+  // pin the (fixed) loader stage to where Home actually is on screen right now, scroll included
+  root.style.setProperty('--hero-top', `${heroTop}px`);
   const cx = stageLeft + CIRCLE_C.x * s;
   const cy = heroTop + CIRCLE_C.y * s;
   const r = CIRCLE_R * s;
