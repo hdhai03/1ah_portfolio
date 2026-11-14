@@ -44,7 +44,10 @@ const MAX_WAIT_MS = 8000;
 const FACE_FROM = { x: 800.06, y: 336.0, w: 320.418 };
 const FACE_TO = { x: 783.426, y: 316.0, w: 353.64 };
 const CIRCLE_R = 740.667 / 2;       // portrait circle radius (design units)
-const CIRCLE_C = { x: 960.333, y: 529.333 };
+const CIRCLE_C = { x: 960.333, y: 529.333 };       // circle centre in the Loading frame
+const HOME_CIRCLE_C = { x: 960.333, y: 408.333 };  // circle centre in the Home frame
+// FACE_TO is expressed in loader-stage units: the loader stage lands so its circle sits on Home's circle,
+// so Home's face (y 195) maps to y 195 + (529.333 − 408.333) = 316 in loader units.
 
 const wait = (ms) => new Promise((r) => setTimeout(r, ms));
 const pageLoaded = new Promise((r) => {
@@ -69,14 +72,17 @@ function finishLoading() {
   const fromTop = innerHeight / 2 - CIRCLE_C.y * s;
   const cx0 = innerWidth / 2;
   const cy0 = innerHeight / 2;
-  const cx = stageLeft + CIRCLE_C.x * s;
-  const cy = heroTop + CIRCLE_C.y * s;
+  const cx = stageLeft + HOME_CIRCLE_C.x * s;
+  const cy = heroTop + HOME_CIRCLE_C.y * s;
   const r = CIRCLE_R * s;
   const R = Math.hypot(cx0, cy0);   // covers the whole screen from its centre
   const timing = { duration: 1100, easing: 'cubic-bezier(.76, 0, .24, 1)', fill: 'forwards' };
 
+  // end position of the loader stage: its circle on top of Home's circle
+  const toLeft = cx - CIRCLE_C.x * s;
+  const toTop = cy - CIRCLE_C.y * s;
   loader.querySelector('.loader__stage').animate(
-    [{ translate: '0px 0px' }, { translate: `${stageLeft - fromLeft}px ${heroTop - fromTop}px` }],
+    [{ translate: '0px 0px' }, { translate: `${toLeft - fromLeft}px ${toTop - fromTop}px` }],
     timing,
   );
 
@@ -118,11 +124,11 @@ const MAX_INFLUENCE_SUM = 1.5;
 // Initial influences were fitted so the AE ease curve matches the Figma hill shape (RMS error ≈ 9–13px);
 // the area is kept equal to the Figma hill, which is the quantity AE conserves.
 const HILLS = [
-  { el: '.hill--left',  x0: 158,     x1: 792.667,  base: 902.333, h: 253.333, area: 70055.1,  i: [0.59, 0.56],
+  { el: '.hill--left',  x0: 158,     x1: 792.667,  base: 781.333, h: 253.333, area: 70055.1,  i: [0.59, 0.56],
     anchors: [150, 786],  key: '#6A5CFF' },
-  { el: '.hill--lime',  x0: 672.668, x1: 1032.668, base: 902.333, h: 153.333, area: 25514.6,  i: [0.53, 0.58],
+  { el: '.hill--lime',  x0: 672.668, x1: 1032.668, base: 781.333, h: 153.333, area: 25514.6,  i: [0.53, 0.58],
     anchors: [666, 1026], key: '#B8F53D' },
-  { el: '.hill--right', x0: 882,     x1: 1762,     base: 901.667, h: 286.667, area: 106640.1, i: [0.60, 0.58],
+  { el: '.hill--right', x0: 882,     x1: 1762,     base: 780.667, h: 286.667, area: 106640.1, i: [0.60, 0.58],
     anchors: [875, 1760], key: '#6A5CFF' },
 ];
 
@@ -304,8 +310,12 @@ if (graph) {
 // a probe rides the selected hill at the playhead's x. Layers are the site's sections (click to go there).
 // Playhead loops; drag it (or click the ruler) to scrub; Space plays/pauses.
 (function timeline() {
-  const svg = document.getElementById('timeline');
-  if (!svg) return;
+  const svgRoot = document.getElementById('timeline');
+  if (!svgRoot) return;
+  // the ground line moved up to y 780 in Figma: the timeline (laid out for 901) shifts with it
+  const svg = document.createElementNS(SVGNS, 'g');
+  svg.setAttribute('transform', 'translate(0 -121)');
+  svgRoot.append(svg);
   const X0 = 158;
   const X1 = 1762;
   const W = X1 - X0;
@@ -512,7 +522,7 @@ document.addEventListener('keydown', (e) => { if (e.key === 'Escape') setMenu(fa
 
 // Subtle parallax on pointer move
 const stage = document.getElementById('stage');
-const layers = [['.paper-tile', 12], ['.orb', -18], ['.dot', 10], ['.portrait-group', 4]];
+const layers = [['.paper-tile', 12], ['.orb', -18], ['.dot', 10], ['.pointer', -14], ['.portrait-group', 4]];
 if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
   window.addEventListener('pointermove', (e) => {
     if (root.classList.contains('is-loading')) return;

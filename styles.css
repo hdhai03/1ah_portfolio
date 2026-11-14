@@ -1,7 +1,7 @@
 /* Values come from the Figma "Home" frame (node 2021:2381, 1920 x 1080). */
 :root {
   --bg: #111;
-  --ground-line: #ededea;
+  --ground-line: #2e1fe0;
   --lime: #c3f53c;
   --white: #fff;
   --s: 1;   /* stage scale, set by main.js */
@@ -129,23 +129,24 @@ img { display: block; max-width: none; }
 .el { position: absolute; }
 
 /* positions = Figma x / y (minus stroke bleed where the SVG is larger than its slot) */
-.paper-tile { left: 484px; top: 188px; }
+.paper-tile { left: 484px; top: 67px; }
 /* portrait group (Figma Group 86): circle, pixel squares, rings, face */
 .portrait-group { left: 0; top: 0; width: 1920px; height: 1080px; pointer-events: none; }
 /* Figma masks this fill with an identical circle (portrait-mask), so the fill is used as-is */
-.portrait { left: 590px; top: 159px; width: 740.667px; height: 740.667px; }
+.portrait { left: 590px; top: 38px; width: 740.667px; height: 740.667px; }
 .portrait img { position: absolute; inset: 0; }
 .px          { animation: px var(--dur, 1.4s) steps(1) var(--d, 0s) infinite; }
-.ring-dashed { left: 645.98px; top: 214.98px; animation: ldSpin 80s linear infinite; }
-.ring        { left: 589.08px; top: 158.08px; }
-.face        { left: 783.43px; top: 316px; overflow: visible; }
+.ring-dashed { left: 645.98px; top: 93.98px; animation: ldSpin 80s linear infinite; }
+.ring        { left: 589.08px; top: 37.08px; }
+.face        { left: 783.43px; top: 195px; overflow: visible; }
 
-.orb        { left: 1347px; top: 149px; }
-.dot        { left: 1464px; top: 402px; }
-.arrows--tl { left: 96px; top: 159px; }
-.arrows--tr { left: 1623px; top: 229px; }
+.orb        { left: 1347px; top: 28px; }
+.dot        { left: 1464px; top: 281px; }
+.arrows--tl { left: 200.17px; top: 38px; }
+.arrows--tr { left: 1623px; top: 147px; }
+.pointer    { left: 1427.08px; top: 434.93px; }
 
-.btn { top: 499px; width: 144px; height: 82.667px; }
+.btn { top: 378px; width: 144px; height: 82.667px; }
 .btn svg { display: block; overflow: visible; }
 .btn--left  { left: 150px; }
 .btn--left svg { transform: scaleX(-1); } /* Figma flips Group 89 horizontally */
@@ -197,7 +198,7 @@ html.is-loading .graph__curve { stroke-dashoffset: 1; }
 .graph__key { stroke: #fff; stroke-width: 1.6; }
 @keyframes px { 50% { opacity: .15; } }
 
-.ground { left: -5px; top: 901px; width: 1930px; height: 181px; border: 1px dashed var(--ground-line); pointer-events: none; }
+.ground { left: -5px; top: 780px; width: 1930px; height: 181px; background: var(--bg); border: 1px dashed var(--ground-line); pointer-events: none; }
 
 /* ---------- AE-style timeline (main.js) ---------- */
 .timeline { left: 0; top: 0; overflow: visible; pointer-events: none; font-family: "IBM Plex Mono", ui-monospace, monospace; }
@@ -273,13 +274,14 @@ html.is-loading { overflow: hidden; }
 @keyframes ldSpread { to { transform: scale(1); } }
 
 /* ---------- HOME ENTRANCE (after the loader shrinks into the portrait) ---------- */
-.paper-tile, .orb, .dot, .arrows, .btn {
+.paper-tile, .orb, .dot, .arrows, .pointer, .btn {
   transition: opacity .5s ease var(--rd, 0s), scale .7s cubic-bezier(.34, 1.56, .64, 1) var(--rd, 0s);
 }
 .nav, .logo { transition: opacity .5s ease var(--rd, 0s), translate .6s cubic-bezier(.22, 1, .36, 1) var(--rd, 0s); }
 html.is-loading .logo { opacity: 0; translate: 0 -24px; }
 .logo        { --rd: .55s; }
-html.is-loading :is(.paper-tile, .orb, .dot, .arrows, .btn) { opacity: 0; scale: .4; }
+html.is-loading :is(.paper-tile, .orb, .dot, .arrows, .pointer, .btn) { opacity: 0; scale: .4; }
+.pointer     { --rd: .45s; }
 html.is-loading .hill { fill-opacity: 0; }
 .graph { transition: opacity .4s ease 1.3s; }   /* handles after the hills have filled */
 html.is-loading .graph { opacity: 0; }
