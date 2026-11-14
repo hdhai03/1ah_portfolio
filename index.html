@@ -15,8 +15,8 @@
   <!-- Loading screen (Figma frame "Loading", node 2025:2626) -->
   <div class="loader" id="loader" aria-hidden="true">
     <div class="loader__stage">
-      <img class="el ld-ring" src="assets/loader-ring.svg" width="742.512" height="742.512" alt="" />
-      <img class="el ld-dashed" src="assets/loader-ring-dashed.svg" width="628.705" height="628.705" alt="" />
+      <img class="el ld-ring" src="assets/ring.svg" width="742.512" height="742.512" alt="" />
+      <img class="el ld-dashed" src="assets/ring-dashed.svg" width="628.705" height="628.705" alt="" />
       <svg class="el ld-px" width="742.512" height="742.512" viewBox="0 0 742.512 742.512" aria-hidden="true">
         <path style="--dur:1.2s; --d:0s" d="M462.3 85.816H442.615V105.501H462.3V85.816Z" fill="#B8F53D" />
         <path style="--dur:1.6s; --d:-.4s" d="M494.289 120.266H479.525V135.03H494.289V120.266Z" fill="#6A5CFF" />
@@ -64,17 +64,18 @@
     </div>
   </div>
 
-  <!-- Nav (Figma: MENU group + avatar, top-right of the Home frame) -->
-  <header class="nav">
-    <button class="nav__menu" id="menuBtn" aria-expanded="false" aria-controls="menuPanel">
-      <img class="nav__menu-bg" src="assets/menu-bg.svg" width="138" height="57" alt="" />
-      <span class="nav__label">MENU</span>
-      <img class="nav__burger" src="assets/menu-burger.svg" width="44" height="44" alt="" />
-    </button>
-    <a class="nav__avatar" href="#home" aria-label="Trang chủ">
-      <img class="nav__avatar-bg" src="assets/avatar-bg.svg" width="57" height="57" alt="" />
-      <img class="nav__avatar-face" src="assets/avatar-face.svg" width="36.3642" height="43.7825" alt="" />
+  <!-- Header (Figma: Group 91 avatar top-left, MENU group top-right) -->
+  <header>
+    <a class="logo" href="#home" aria-label="Trang chủ">
+      <img src="assets/avatar.svg" width="81.4286" height="81.4286" alt="" />
     </a>
+    <div class="nav">
+      <button class="nav__menu" id="menuBtn" aria-expanded="false" aria-controls="menuPanel">
+        <img class="nav__menu-bg" src="assets/menu-bg.svg" width="138" height="57" alt="" />
+        <span class="nav__label">MENU</span>
+        <img class="nav__burger" src="assets/menu-burger.svg" width="44" height="44" alt="" />
+      </button>
+    </div>
   </header>
 
   <nav class="menu" id="menuPanel" hidden>
@@ -93,11 +94,23 @@
       <div class="stage" id="stage">
         <img class="el paper-tile float-a" src="assets/paper-tile.svg" width="186.999" height="188" alt="" />
 
-        <img class="el portrait" src="assets/portrait.svg" width="742.512" height="742.512" alt="Chân dung minh hoạ" />
+        <!-- Portrait (Figma Group 86) -->
+        <div class="el portrait-group">
+          <div class="el portrait"><img src="assets/portrait-fill.svg" width="740.667" height="740.667" alt="" /></div>
+          <img class="el px" style="left:1031.69px; top:243.89px; --dur:1.2s; --d:0s" src="assets/px-1.svg" width="19.6855" height="19.6855" alt="" />
+          <img class="el px" style="left:1068.6px; top:278.34px; --dur:1.6s; --d:-.4s" src="assets/px-2.svg" width="14.7641" height="14.7641" alt="" />
+          <img class="el px" style="left:1167.03px; top:206.98px; --dur:2s; --d:-.9s" src="assets/px-3.svg" width="22.1462" height="22.1462" alt="" />
+          <img class="el px" style="left:1228.55px; top:342.32px; --dur:1.4s; --d:-.2s" src="assets/px-4.svg" width="12.3034" height="12.3034" alt="" />
+          <img class="el px" style="left:1125.2px; top:386.61px; --dur:1.8s; --d:-1.1s" src="assets/px-5.svg" width="9.84275" height="9.84275" alt="" />
+          <img class="el px" style="left:662.59px; top:674.51px; --dur:1.5s; --d:-.6s" src="assets/px-6.svg" width="17.2248" height="17.2248" alt="" />
+          <img class="el ring-dashed" src="assets/ring-dashed.svg" width="628.705" height="628.705" alt="" />
+          <img class="el ring" src="assets/ring.svg" width="742.512" height="742.512" alt="" />
+          <img class="el face" src="assets/portrait-face.svg" width="353.641" height="425.783" alt="Chân dung minh hoạ" />
+        </div>
 
         <img class="el orb float-b" src="assets/orb.svg" width="133.333" height="133.333" alt="" />
         <img class="el dot float-a" src="assets/dot.svg" width="32" height="32" alt="" />
-        <img class="el arrows arrows--tl" src="assets/top-arrows.svg" width="188" height="20.0002" alt="" />
+        <img class="el arrows arrows--tl" src="assets/top-arrows-left.svg" width="144" height="15.3192" alt="" />
         <img class="el arrows arrows--tr" src="assets/top-arrows.svg" width="188" height="20.0002" alt="" />
         <img class="el pointer float-c" src="assets/pointer.svg" width="64" height="64" alt="" />
 
@@ -135,15 +148,16 @@
 
         <img class="el hill hill--lime" src="assets/hill-lime.svg" width="360" height="157.333" alt="" />
         <img class="el hill hill--left" src="assets/hill-left.svg" width="634.667" height="257.333" alt="" />
+        <img class="el hill hill--right" src="assets/hill-right.svg" width="880" height="290.667" alt="" />
+
+        <div class="el ground"></div>
+
         <img class="el handle" style="left:150px; --dur:1.4s; --d:-.3s" src="assets/handle-purple.svg" width="13.3333" height="13.3333" alt="" />
         <img class="el handle" style="left:786px; --dur:1.8s; --d:-1s" src="assets/handle-purple.svg" width="13.3333" height="13.3333" alt="" />
         <img class="el handle" style="left:875px; --dur:1.2s; --d:-.6s" src="assets/handle-purple.svg" width="13.3333" height="13.3333" alt="" />
         <img class="el handle" style="left:1760px; --dur:1.6s; --d:-.1s" src="assets/handle-purple.svg" width="13.3333" height="13.3333" alt="" />
         <img class="el handle" style="left:666px; --dur:1.5s; --d:-.8s" src="assets/handle-lime.svg" width="13.3333" height="13.3333" alt="" />
         <img class="el handle" style="left:1026px; --dur:2s; --d:-1.3s" src="assets/handle-lime.svg" width="13.3333" height="13.3333" alt="" />
-        <img class="el hill hill--right" src="assets/hill-right.svg" width="880" height="290.667" alt="" />
-
-        <div class="el ground"></div>
       </div>
     </section>
   </main>

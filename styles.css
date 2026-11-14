@@ -1,7 +1,7 @@
-/* Values come from the Figma "Home" frame (node 2021:1884, 1920 x 1080). */
+/* Values come from the Figma "Home" frame (node 2021:2381, 1920 x 1080). */
 :root {
   --bg: #111;
-  --ground: #000;
+  --ground-line: #ededea;
   --lime: #c3f53c;
   --white: #fff;
   --s: 1;   /* stage scale, set by main.js */
@@ -17,19 +17,31 @@ body {
 button { font: inherit; cursor: pointer; border: 0; background: none; color: inherit; padding: 0; }
 img { display: block; max-width: none; }
 
-/* ---------- NAV (198 x 57 design units, pinned top-right) ---------- */
+/* ---------- HEADER: logo top-left (Group 91), MENU top-right ---------- */
+.logo {
+  position: fixed;
+  z-index: 50;
+  top: calc(27.29px * var(--s));
+  left: calc(95.29px * var(--s));
+  width: 81.4286px;
+  height: 81.4286px;
+  transform: scale(var(--ns));
+  transform-origin: top left;
+}
+.logo img { transition: rotate .25s, translate .25s; }
+.logo:hover img { translate: 0 -2px; rotate: -4deg; }
+
 .nav {
   position: fixed;
   z-index: 50;
   top: calc(27.5px * var(--s));
   right: calc(99.5px * var(--s));
-  width: 198px;
+  width: 138px;
   height: 57px;
   transform: scale(var(--ns));
   transform-origin: top right;
 }
-.nav > * { position: absolute; top: 0; }
-.nav__menu { left: 0; width: 138px; height: 57px; }
+.nav__menu { position: absolute; left: 0; top: 0; width: 138px; height: 57px; }
 .nav__menu-bg { position: absolute; inset: 0; }
 .nav__label {
   position: absolute;
@@ -45,11 +57,6 @@ img { display: block; max-width: none; }
 .nav__burger { position: absolute; left: 82.5px; top: 6.5px; transition: transform .25s; }
 .nav__menu:hover .nav__burger { transform: rotate(-8deg); }
 .nav__menu[aria-expanded="true"] .nav__burger { transform: rotate(90deg); }
-
-.nav__avatar { left: 141px; width: 57px; height: 57px; transition: transform .25s; }
-.nav__avatar-bg { position: absolute; inset: 0; }
-.nav__avatar-face { position: absolute; left: 10.5px; top: 6.5px; }
-.nav__avatar:hover { transform: translateY(-2px) rotate(4deg); }
 
 /* ---------- MENU OVERLAY ---------- */
 .menu {
@@ -97,10 +104,19 @@ img { display: block; max-width: none; }
 
 /* positions = Figma x / y (minus stroke bleed where the SVG is larger than its slot) */
 .paper-tile { left: 484px; top: 188px; }
-.portrait   { left: 589.08px; top: 158.08px; }
+/* portrait group (Figma Group 86): circle, pixel squares, rings, face */
+.portrait-group { left: 0; top: 0; width: 1920px; height: 1080px; pointer-events: none; }
+/* Figma masks this fill with an identical circle (portrait-mask), so the fill is used as-is */
+.portrait { left: 590px; top: 159px; width: 740.667px; height: 740.667px; }
+.portrait img { position: absolute; inset: 0; }
+.px          { animation: px var(--dur, 1.4s) steps(1) var(--d, 0s) infinite; }
+.ring-dashed { left: 645.98px; top: 214.98px; animation: ldSpin 80s linear infinite; }
+.ring        { left: 589.08px; top: 158.08px; }
+.face        { left: 783.43px; top: 316px; }
+
 .orb        { left: 1347px; top: 149px; }
 .dot        { left: 1464px; top: 402px; }
-.arrows--tl { left: 96px; top: 129px; }
+.arrows--tl { left: 96px; top: 159px; }
 .arrows--tr { left: 1623px; top: 229px; }
 .pointer    { left: 1414.25px; top: 543px; rotate: .23deg; }
 
@@ -124,7 +140,7 @@ img { display: block; max-width: none; }
 .handle      { top: 893px; animation: px var(--dur, 1.4s) steps(1) var(--d, 0s) infinite; }
 @keyframes px { 50% { opacity: .15; } }
 
-.ground { left: 0; top: 900px; width: 1920px; height: 180px; background: var(--ground); }
+.ground { left: 0; top: 900px; width: 1920px; height: 180px; border: 1px dashed var(--ground-line); }
 
 /* motion */
 .float-a { animation: floatA 6s ease-in-out infinite; }
@@ -185,7 +201,9 @@ html.is-loading { overflow: hidden; }
   transition: opacity .5s ease var(--rd, 0s), scale .7s cubic-bezier(.34, 1.56, .64, 1) var(--rd, 0s);
 }
 .hill { transform-origin: 50% 100%; transition: scale .8s cubic-bezier(.22, 1, .36, 1) var(--rd, 0s); }
-.nav { transition: opacity .5s ease var(--rd, 0s), translate .6s cubic-bezier(.22, 1, .36, 1) var(--rd, 0s); }
+.nav, .logo { transition: opacity .5s ease var(--rd, 0s), translate .6s cubic-bezier(.22, 1, .36, 1) var(--rd, 0s); }
+html.is-loading .logo { opacity: 0; translate: 0 -24px; }
+.logo        { --rd: .55s; }
 html.is-loading :is(.paper-tile, .orb, .dot, .arrows, .pointer, .btn, .handle) { opacity: 0; scale: .4; }
 html.is-loading .hill { scale: 1 0; }
 html.is-loading .nav { opacity: 0; translate: 0 -24px; }

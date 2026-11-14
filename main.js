@@ -36,7 +36,7 @@ const MAX_WAIT_MS = 8000;
 
 // Loader face (Figma Loading frame) -> Home face (Group 85 in the Home frame), in stage units
 const FACE_FROM = { x: 800.06, y: 336.0, w: 320.418 };
-const FACE_TO = { x: 764.32, y: 293.0, w: 391.847 };
+const FACE_TO = { x: 783.426, y: 316.0, w: 353.64 };
 const CIRCLE_R = 740.667 / 2;       // portrait circle radius (design units)
 const CIRCLE_C = { x: 960.333, y: 529.333 };
 
@@ -96,7 +96,7 @@ document.addEventListener('keydown', (e) => { if (e.key === 'Escape') setMenu(fa
 
 // Subtle parallax on pointer move
 const stage = document.getElementById('stage');
-const layers = [['.paper-tile', 12], ['.orb', -18], ['.dot', 10], ['.pointer', -14], ['.portrait', 4]];
+const layers = [['.paper-tile', 12], ['.orb', -18], ['.dot', 10], ['.pointer', -14], ['.portrait-group', 4]];
 if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
   window.addEventListener('pointermove', (e) => {
     if (root.classList.contains('is-loading')) return;
