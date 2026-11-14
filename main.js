@@ -245,6 +245,11 @@ function buildHandle(h, side) {
 // Selecting a hill (click / tap / keyboard focus) reveals its keyframe squares and handles, like picking
 // a property in AE's graph editor. Exactly one hill is selected at all times.
 function selectHill(sel) {
+  // layer order: Figma order for the others, the selected hill (fill + stroke) on top so it is fully visible
+  const svg = HILLS[0].path.ownerSVGElement;
+  const active = document.activeElement;
+  [...HILLS.filter((h) => h !== sel), sel].forEach((h) => h && svg.append(h.path, h.outline));
+  if (active && active !== document.activeElement && svg.contains(active)) active.focus({ preventScroll: true });
   HILLS.forEach((h) => {
     const on = h === sel;
     h.group.classList.toggle('is-selected', on);
@@ -269,7 +274,7 @@ if (graph) {
     h.path.setAttribute('role', 'button');
     h.path.setAttribute('aria-label', 'Select curve to edit its keyframe handles');
     h.path.addEventListener('pointerdown', () => selectHill(h));
-    h.path.addEventListener('focus', () => selectHill(h));
+    h.path.addEventListener('focus', () => { if (!h.path.classList.contains('is-selected')) selectHill(h); });
   });
   selectHill(HILLS[1]);   // the small lime hill starts selected; one hill is always selected (no deselect)
 }
