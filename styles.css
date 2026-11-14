@@ -135,7 +135,8 @@ img { display: block; max-width: none; }
 }
 
 .hills { left: 0; top: 0; overflow: visible; pointer-events: none; }
-.hill  { transform-box: fill-box; pointer-events: visiblePainted; cursor: pointer; }
+.hill  { transform-box: fill-box; pointer-events: visiblePainted; cursor: pointer; fill: #6a5cff; transition: fill .25s ease; }
+.hill.is-selected { fill: #b8f53d; }
 .hill:focus { outline: none; }
 
 /* graph editor: a hill's curve stroke + handles only show (and are editable) once the hill is selected */
@@ -157,7 +158,9 @@ img { display: block; max-width: none; }
 .graph__handle:focus { outline: none; }
 .graph__handle:focus-visible .graph__dot { fill: var(--lime); stroke: #fff; stroke-width: 2; }
 
-.handle     { top: 893px; }
+/* keyframe squares only show for the selected hill */
+.handle     { top: 893px; visibility: hidden; }
+.handle.is-shown { visibility: visible; }
 @keyframes px { 50% { opacity: .15; } }
 
 .ground { left: -5px; top: 901px; width: 1930px; height: 181px; border: 1px dashed var(--ground-line); }

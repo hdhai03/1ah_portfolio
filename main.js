@@ -246,6 +246,7 @@ function selectHill(sel) {
     h.group.classList.toggle('is-selected', on);
     h.path.classList.toggle('is-selected', on);
     h.path.setAttribute('aria-pressed', String(on));
+    h.anchorEls.forEach((a) => a && a.classList.toggle('is-shown', on));
   });
 }
 if (graph) {
@@ -270,6 +271,7 @@ if (graph) {
     if (!e.target.closest('.hill, .graph__hill')) selectHill(null);
   });
   document.addEventListener('keydown', (e) => { if (e.key === 'Escape') selectHill(null); });
+  selectHill(HILLS[1]);   // the small lime hill starts selected
 }
 
 
