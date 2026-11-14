@@ -238,7 +238,7 @@ function buildHandle(h, side) {
     set(dx + d[0], dy + d[1]);
   });
 }
-// Selecting a hill (click / tap / keyboard focus) reveals its curve stroke and handles, like picking
+// Selecting a hill (click / tap / keyboard focus) reveals its keyframe squares and handles, like picking
 // a property in AE's graph editor. Exactly one hill is selected at all times.
 function selectHill(sel) {
   HILLS.forEach((h) => {
@@ -253,9 +253,10 @@ if (graph) {
   HILLS.forEach((h) => {
     h.group = document.createElementNS(SVGNS, 'g');
     h.group.setAttribute('class', 'graph__hill');
+    // white stroke on every hill, placed right above its own fill so hill overlaps stay correct
     h.outline = document.createElementNS(SVGNS, 'path');
-    h.outline.setAttribute('class', 'graph__curve');
-    h.group.append(h.outline);
+    h.outline.setAttribute('class', `graph__curve ${h.el.slice(1)}`);   // shares the hill's entrance delay
+    h.path.after(h.outline);
     graph.append(h.group);
     buildHandle(h, 0);
     buildHandle(h, 1);
