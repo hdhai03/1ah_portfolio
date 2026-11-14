@@ -239,7 +239,7 @@ function buildHandle(h, side) {
   });
 }
 // Selecting a hill (click / tap / keyboard focus) reveals its curve stroke and handles, like picking
-// a property in AE's graph editor. Clicking anywhere else, or Esc, deselects.
+// a property in AE's graph editor. Exactly one hill is selected at all times.
 function selectHill(sel) {
   HILLS.forEach((h) => {
     const on = h === sel;
@@ -267,11 +267,7 @@ if (graph) {
     h.path.addEventListener('pointerdown', () => selectHill(h));
     h.path.addEventListener('focus', () => selectHill(h));
   });
-  document.addEventListener('pointerdown', (e) => {
-    if (!e.target.closest('.hill, .graph__hill')) selectHill(null);
-  });
-  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') selectHill(null); });
-  selectHill(HILLS[1]);   // the small lime hill starts selected
+  selectHill(HILLS[1]);   // the small lime hill starts selected; one hill is always selected (no deselect)
 }
 
 
