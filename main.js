@@ -298,46 +298,6 @@ if (graph) {
 }
 
 
-// ---------- Random blinking pixel squares ----------
-// Squares scattered over the whole stage, each switching on/off after a random delay (pixel-style, no fade);
-// while off, a scattered square sometimes reappears somewhere else. The 6 Figma squares around the portrait
-// keep their place but blink at random too.
-(function pixelSquares() {
-  const layer = document.getElementById('pixels');
-  if (!layer || reduceMotion) return;
-  const COUNT = 28;
-  const SIZES = [8, 10, 12, 14, 18, 22];
-  const COLORS = ['#B8F53D', '#B8F53D', '#B8F53D', '#6A5CFF', '#6A5CFF', '#6A5CFF', '#F2F2EE']; // weighted
-  const rand = (a, b) => a + Math.random() * (b - a);
-  const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];
-  const place = (el) => {
-    el.style.left = `${rand(40, 1880).toFixed(0)}px`;
-    el.style.top = `${rand(130, 880).toFixed(0)}px`;
-  };
-  function blink(el, moves) {
-    const on = el.style.opacity !== '0';
-    if (on) {
-      el.style.opacity = Math.random() < 0.6 ? '0' : '0.25';            // off, or dim
-    } else {
-      if (moves && Math.random() < 0.45) place(el);                      // reappear elsewhere
-      el.style.opacity = '1';
-    }
-    setTimeout(() => blink(el, moves), rand(150, 1600));
-  }
-  for (let i = 0; i < COUNT; i++) {
-    const sq = document.createElement('i');
-    sq.className = 'pixel';
-    const size = pick(SIZES);
-    sq.style.width = sq.style.height = `${size}px`;
-    sq.style.background = pick(COLORS);
-    sq.style.opacity = Math.random() < 0.5 ? '1' : '0';
-    place(sq);
-    layer.append(sq);
-    setTimeout(() => blink(sq, true), rand(0, 1600));
-  }
-  document.querySelectorAll('.portrait-group .px').forEach((sq) => setTimeout(() => blink(sq, false), rand(0, 1200)));
-}());
-
 // ---------- Burning hair: path motion ----------
 // Every point of the white hair paths (anchors and bézier handles) is pushed by smooth sine "flames":
 // points near the top of the hair lick upward and sway, points near the hairline stay put.
