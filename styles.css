@@ -34,7 +34,7 @@ img { display: block; max-width: none; }
   position: absolute;
   inset: 0;
   transform-style: preserve-3d;
-  animation: cubeStep 8s infinite;
+  animation: cubeStep 13.333s infinite;   /* 8s at 0.6x speed */
 }
 .logo__face {
   position: absolute;
@@ -49,10 +49,10 @@ img { display: block; max-width: none; }
    front face sits at the original avatar size */
 @keyframes cubeStep {
   0%, 17.5%   { transform: translateZ(-40.714px) rotateY(0deg); }
-  25%, 42.5%  { transform: translateZ(-40.714px) rotateY(-90deg); }
-  50%, 67.5%  { transform: translateZ(-40.714px) rotateY(-180deg); }
-  75%, 92.5%  { transform: translateZ(-40.714px) rotateY(-270deg); }
-  100%        { transform: translateZ(-40.714px) rotateY(-360deg); }
+  25%, 42.5%  { transform: translateZ(-40.714px) rotateY(90deg); }
+  50%, 67.5%  { transform: translateZ(-40.714px) rotateY(180deg); }
+  75%, 92.5%  { transform: translateZ(-40.714px) rotateY(270deg); }
+  100%        { transform: translateZ(-40.714px) rotateY(360deg); }
 }
 .logo__cube { animation-timing-function: cubic-bezier(.65, 0, .35, 1); }
 
