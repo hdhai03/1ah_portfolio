@@ -135,10 +135,14 @@ img { display: block; max-width: none; }
 }
 
 .hills { left: 0; top: 0; overflow: visible; pointer-events: none; }
-.hill  { transform-box: fill-box; }
+.hill  { transform-box: fill-box; pointer-events: visiblePainted; cursor: pointer; }
+.hill:focus { outline: none; }
 
-/* graph-editor handles */
+/* graph editor: a hill's curve stroke + handles only show (and are editable) once the hill is selected */
 .graph { left: 0; top: 0; overflow: visible; pointer-events: none; }
+.graph__hill { display: none; }
+.graph__hill.is-selected { display: inline; }
+.graph__curve { fill: none; stroke: #fff; stroke-width: 1.6; stroke-linejoin: round; }
 .graph__line { stroke: #fff; stroke-width: 1.6; }
 .graph__dot { fill: #fff; }
 .graph__hit {
@@ -153,7 +157,7 @@ img { display: block; max-width: none; }
 .graph__handle:focus { outline: none; }
 .graph__handle:focus-visible .graph__dot { fill: var(--lime); stroke: #fff; stroke-width: 2; }
 
-.handle     { top: 893px; animation: px var(--dur, 1.4s) steps(1) var(--d, 0s) infinite; }
+.handle     { top: 893px; }
 @keyframes px { 50% { opacity: .15; } }
 
 .ground { left: -5px; top: 901px; width: 1930px; height: 181px; border: 1px dashed var(--ground-line); }

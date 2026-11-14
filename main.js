@@ -83,43 +83,87 @@ function finishLoading() {
 
 Promise.race([Promise.all([pageLoaded, wait(DRAW_MS)]), wait(MAX_WAIT_MS)]).then(finishLoading);
 
-// ---------- Hills as an After Effects-style graph editor ----------
-// Each hill is two cubic béziers: A -> c1 -> c2 -> P (peak) and P -> c3 -> c4 -> B, values from the Figma vectors.
-// The baseline handles (c1, c4) are exposed as draggable dots. Handles are drawn at K x the real
-// control length, so the first one matches the 118px sample in Figma.
+// ---------- Hills as an After Effects speed graph ----------
+// Each hill is the speed graph of ONE animated segment between two keyframes (A -> B), like AE:
+//  - the value curve is a cubic bézier  P0=(0,0)  P1=(i1·T, s1·i1·T)  P2=(T−i2·T, D−s2·i2·T)  P3=(T,D)
+//    (i = influence 0..1, s = speed at the keyframe, T = duration, D = distance travelled)
+//  - the hill is its derivative (speed over time), so the peak is NOT a fixed point: it emerges from both handles
+//  - the area under the hill (= D) stays constant: longer handles make a narrower, taller peak;
+//    raising a keyframe's speed lowers the middle.
+// Handles are horizontal (as in AE's speed graph): drag sideways = influence, drag up/down = keyframe speed.
 const SVGNS = 'http://www.w3.org/2000/svg';
-const K = 118 / 181.333;
-const HANDLE_Y = 900;                     // Figma: handle line sits on y = 900
-const HILLS = [
-  { el: '.hill--left',  A: [158, 902.333],     c1: [339.333, 902.333],  c2: [379.333, 649], P: [482, 649],
-    c3: [584.667, 649], c4: [632.667, 902.333], B: [792.667, 902.333], anchors: [156.667, 792.667] },
-  { el: '.hill--lime',  A: [672.668, 902.333], c1: [766.001, 902.333],  c2: [766.001, 749], P: [843.335, 749],
-    c3: [920.668, 749], c4: [926.001, 902.333], B: [1032.668, 902.333], anchors: [672.667, 1032.667] },
-  { el: '.hill--right', A: [882, 901.667],     c1: [1158, 901.667],     c2: [1184.667, 615], P: [1322, 615],
-    c3: [1464.667, 615], c4: [1531.333, 901.667], B: [1762, 901.667], anchors: [881.667, 1766.667] },
-];
-HILLS.forEach((h) => { h.init = { c1: [...h.c1], c4: [...h.c4] }; h.path = document.querySelector(h.el); });
+const K = 118 / (0.59 * 634.667); // handle drawn length = influence·T·K (first handle = the 118px Figma sample)
+const LINE_DY = -2.333;    // Figma draws the handle line at y=900, 2.33px above the hill baseline
+const SAMPLES = 96;
+const MAX_INFLUENCE_SUM = 1.5;
 
-const f = (n) => +n.toFixed(3);
-function hillPath(h) {
-  const { A, c1, c2, P, c3, c4, B } = h;
-  return `M${f(A[0])} ${f(A[1])}C${f(c1[0])} ${f(c1[1])} ${f(c2[0])} ${f(c2[1])} ${f(P[0])} ${f(P[1])}`
-       + `C${f(c3[0])} ${f(c3[1])} ${f(c4[0])} ${f(c4[1])} ${f(B[0])} ${f(B[1])}H${f(A[0])}Z`;
+// Figma geometry: baseline x-range, baseline y, peak height and area under the hill (px²).
+// Initial influences were fitted so the AE ease curve matches the Figma hill shape (RMS error ≈ 9–13px);
+// the area is kept equal to the Figma hill, which is the quantity AE conserves.
+const HILLS = [
+  { el: '.hill--left',  x0: 158,     x1: 792.667,  base: 902.333, h: 253.333, area: 70055.1,  i: [0.59, 0.56],
+    anchors: [150, 786] },
+  { el: '.hill--lime',  x0: 672.668, x1: 1032.668, base: 902.333, h: 153.333, area: 25514.6,  i: [0.53, 0.58],
+    anchors: [666, 1026] },
+  { el: '.hill--right', x0: 882,     x1: 1762,     base: 901.667, h: 286.667, area: 106640.1, i: [0.60, 0.58],
+    anchors: [875, 1760] },
+];
+
+const bez = (p0, p1, p2, p3, u) => {
+  const m = 1 - u;
+  return m * m * m * p0 + 3 * m * m * u * p1 + 3 * m * u * u * p2 + u * u * u * p3;
+};
+const dbez = (p0, p1, p2, p3, u) => {
+  const m = 1 - u;
+  return 3 * (m * m * (p1 - p0) + 2 * m * u * (p2 - p1) + u * u * (p3 - p2));
+};
+
+// speed curve samples [t, speed] for a hill (D = 1, so speeds are in 1/px)
+function speedCurve(T, i1, i2, s1, s2) {
+  const X = [0, i1 * T, T - i2 * T, T];
+  const Y = [0, s1 * i1 * T, 1 - s2 * i2 * T, 1];
+  const pts = [];
+  for (let k = 0; k <= SAMPLES; k++) {
+    const u = k / SAMPLES;
+    const dx = dbez(...X, u);
+    const dy = dbez(...Y, u);
+    pts.push([bez(...X, u), dx > 1e-9 ? dy / dx : (u < 0.5 ? s1 : s2)]);
+  }
+  return pts;
+}
+
+HILLS.forEach((h) => {
+  h.T = h.x1 - h.x0;
+  h.s = [0, 0];                       // ease in / ease out: speed 0 at both keyframes
+  h.init = { i: [...h.i], s: [...h.s] };
+  h.path = document.querySelector(h.el);
+  // with D = 1 the area under the speed curve is 1, so SY = Figma area makes the drawn area match Figma
+  h.SY = h.area;                      // px per (1/px) of speed
+  h.anchorEls = h.anchors.map((x) => [...document.querySelectorAll('.handle')]
+    .find((img) => parseFloat(img.style.left) === x));
+});
+
+const f = (n) => +n.toFixed(2);
+function renderHill(h) {
+  const pts = speedCurve(h.T, h.i[0], h.i[1], h.s[0], h.s[1]);
+  let d = `M${f(h.x0)} ${f(h.base)}`;
+  for (const [t, v] of pts) d += `L${f(h.x0 + t)} ${f(h.base - v * h.SY)}`;
+  h.path.setAttribute('d', `${d}L${f(h.x1)} ${f(h.base)}Z`);
+  if (h.outline) h.outline.setAttribute('d', d.replace(/^M[^L]+/, `M${f(h.x0)} ${f(h.base - pts[0][1] * h.SY)}`));
 }
 
 const graph = document.getElementById('graph');
-const clamp = (v, a, b) => Math.min(Math.max(v, Math.min(a, b)), Math.max(a, b));
+const clamp = (v, a, b) => Math.min(Math.max(v, a), b);
 
 function buildHandle(h, side) {
-  // side 0 = start (A, c1, grows right), side 1 = end (B, c4, grows left)
-  const key = side === 0 ? 'c1' : 'c4';
-  const base = side === 0 ? h.A : h.B;
-  const ox = h.anchors[side];
+  const dir = side === 0 ? 1 : -1;                    // start handle points right, end handle points left
+  const kx = h.anchors[side] + 6.667;                 // keyframe (anchor square) centre x
+  const anchorEl = h.anchorEls[side];
   const g = document.createElementNS(SVGNS, 'g');
   g.setAttribute('class', 'graph__handle');
   g.setAttribute('tabindex', '0');
   g.setAttribute('role', 'slider');
-  g.setAttribute('aria-label', 'Graph handle — drag, or use arrow keys');
+  g.setAttribute('aria-label', 'Keyframe handle: drag sideways for influence, up/down for speed');
   const line = document.createElementNS(SVGNS, 'line');
   line.setAttribute('class', 'graph__line');
   const dot = document.createElementNS(SVGNS, 'circle');
@@ -129,24 +173,30 @@ function buildHandle(h, side) {
   hit.setAttribute('class', 'graph__hit');
   hit.setAttribute('r', '16');
   g.append(line, dot, hit);
-  graph.append(g);
+  h.group.append(g);
 
-  // dot position <-> control point
-  const toDot = (c) => [ox + (c[0] - base[0]) * K, HANDLE_Y + (c[1] - base[1]) * K];
-  const fromDot = (d) => [base[0] + (d[0] - ox) / K, base[1] + (d[1] - HANDLE_Y) / K];
-  const limitX = ox + (h.P[0] - base[0]) * K;       // can't pass the peak
-  const limitY = HANDLE_Y + (h.P[1] - base[1]) * K; // can't go above the peak
+  const lineY = () => h.base + LINE_DY - h.s[side] * h.SY;
+  const dotPos = () => [kx + dir * h.i[side] * h.T * K, lineY()];
 
   function render() {
-    const [dx, dy] = toDot(h[key]);
-    line.setAttribute('x1', ox); line.setAttribute('y1', HANDLE_Y);
+    const [dx, dy] = dotPos();
+    line.setAttribute('x1', kx); line.setAttribute('y1', dy);
     line.setAttribute('x2', dx); line.setAttribute('y2', dy);
     for (const c of [dot, hit]) { c.setAttribute('cx', dx); c.setAttribute('cy', dy); }
-    h.path.setAttribute('d', hillPath(h));
+    if (anchorEl) anchorEl.style.top = `${893 - h.s[side] * h.SY}px`;   // keyframe rides up with its speed
+    renderHill(h);
   }
+  // drive both handles of the hill (the other side's curve changes too)
+  h.renders = h.renders || [];
+  h.renders.push(render);
+  const renderAll = () => h.renders.forEach((r) => r());
+
   function set(dx, dy) {
-    h[key] = fromDot([clamp(dx, ox, limitX), clamp(dy, HANDLE_Y, limitY)]);
-    render();
+    // AE allows 0.1%..100% per side; 100% on both sides makes the speed infinite mid-segment,
+    // so the two influences together are capped (keeps the peak below the portrait)
+    h.i[side] = clamp((dx - kx) * dir / (h.T * K), 0.01, Math.min(1, MAX_INFLUENCE_SUM - h.i[1 - side]));
+    h.s[side] = clamp((h.base + LINE_DY - dy) / h.SY, 0, (h.h * 1.15) / h.SY);         // keep it on screen
+    renderAll();
   }
 
   const toStage = (e) => {
@@ -156,10 +206,10 @@ function buildHandle(h, side) {
   };
   hit.addEventListener('pointerdown', (e) => {
     e.preventDefault();
-    hit.setPointerCapture(e.pointerId);
+    try { hit.setPointerCapture(e.pointerId); } catch (_) { /* synthetic events */ }
     g.classList.add('is-dragging');
     const [px, py] = toStage(e);
-    const [dx, dy] = toDot(h[key]);
+    const [dx, dy] = dotPos();
     const off = [dx - px, dy - py];
     const move = (ev) => { const [x, y] = toStage(ev); set(x + off[0], y + off[1]); };
     const up = () => {
@@ -172,20 +222,56 @@ function buildHandle(h, side) {
     hit.addEventListener('pointerup', up);
     hit.addEventListener('pointercancel', up);
   });
-  // double-click resets to the Figma curve
-  hit.addEventListener('dblclick', () => { h[key] = [...h.init[key]]; render(); });
+  // double-click resets this keyframe to the Figma ease
+  hit.addEventListener('dblclick', () => {
+    h.i[side] = h.init.i[side];
+    h.s[side] = h.init.s[side];
+    renderAll();
+  });
   // keyboard: arrows nudge (shift = bigger steps)
   g.addEventListener('keydown', (e) => {
     const step = e.shiftKey ? 20 : 4;
     const d = { ArrowLeft: [-step, 0], ArrowRight: [step, 0], ArrowUp: [0, -step], ArrowDown: [0, step] }[e.key];
     if (!d) return;
     e.preventDefault();
-    const [dx, dy] = toDot(h[key]);
+    const [dx, dy] = dotPos();
     set(dx + d[0], dy + d[1]);
   });
-  render();
 }
-if (graph) HILLS.forEach((h) => { buildHandle(h, 0); buildHandle(h, 1); });
+// Selecting a hill (click / tap / keyboard focus) reveals its curve stroke and handles, like picking
+// a property in AE's graph editor. Clicking anywhere else, or Esc, deselects.
+function selectHill(sel) {
+  HILLS.forEach((h) => {
+    const on = h === sel;
+    h.group.classList.toggle('is-selected', on);
+    h.path.classList.toggle('is-selected', on);
+    h.path.setAttribute('aria-pressed', String(on));
+  });
+}
+if (graph) {
+  HILLS.forEach((h) => {
+    h.group = document.createElementNS(SVGNS, 'g');
+    h.group.setAttribute('class', 'graph__hill');
+    h.outline = document.createElementNS(SVGNS, 'path');
+    h.outline.setAttribute('class', 'graph__curve');
+    h.group.append(h.outline);
+    graph.append(h.group);
+    buildHandle(h, 0);
+    buildHandle(h, 1);
+    h.renders.forEach((r) => r());
+
+    h.path.setAttribute('tabindex', '0');
+    h.path.setAttribute('role', 'button');
+    h.path.setAttribute('aria-label', 'Select curve to edit its keyframe handles');
+    h.path.addEventListener('pointerdown', () => selectHill(h));
+    h.path.addEventListener('focus', () => selectHill(h));
+  });
+  document.addEventListener('pointerdown', (e) => {
+    if (!e.target.closest('.hill, .graph__hill')) selectHill(null);
+  });
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape') selectHill(null); });
+}
+
 
 // Menu overlay
 const menuBtn = document.getElementById('menuBtn');
