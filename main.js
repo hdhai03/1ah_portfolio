@@ -23,8 +23,9 @@ function fit() {
   root.style.setProperty('--s', s.toFixed(4));
   root.style.setProperty('--ns', Math.max(s, 0.75).toFixed(4)); // keep the menu tappable on small screens
   root.style.setProperty('--stage-left', `${left}px`);
-  const hero = document.getElementById('home');
-  if (hero) root.style.setProperty('--hero-top', `${hero.offsetTop}px`);
+  // while loading, the loader stage is placed so the portrait circle (960.333, 529.333) sits mid-screen
+  root.style.setProperty('--loader-left', `${w / 2 - 960.333 * s}px`);
+  root.style.setProperty('--loader-top', `${h / 2 - 529.333 * s}px`);
 }
 fit();
 window.addEventListener('resize', fit);
@@ -61,14 +62,23 @@ function finishLoading() {
   fit();
   const s = parseFloat(getComputedStyle(root).getPropertyValue('--s')) || 1;
   const stageLeft = parseFloat(getComputedStyle(root).getPropertyValue('--stage-left')) || 0;
+  // where Home's portrait actually is on screen right now (scroll included)
   const heroTop = document.getElementById('home').getBoundingClientRect().top;
-  // pin the (fixed) loader stage to where Home actually is on screen right now, scroll included
-  root.style.setProperty('--hero-top', `${heroTop}px`);
+  // the loader starts centred on screen and slides down/over to Home's portrait while it shrinks
+  const fromLeft = innerWidth / 2 - CIRCLE_C.x * s;
+  const fromTop = innerHeight / 2 - CIRCLE_C.y * s;
+  const cx0 = innerWidth / 2;
+  const cy0 = innerHeight / 2;
   const cx = stageLeft + CIRCLE_C.x * s;
   const cy = heroTop + CIRCLE_C.y * s;
   const r = CIRCLE_R * s;
-  const R = Math.hypot(Math.max(cx, innerWidth - cx), Math.max(cy, innerHeight - cy));
+  const R = Math.hypot(cx0, cy0);   // covers the whole screen from its centre
   const timing = { duration: 1100, easing: 'cubic-bezier(.76, 0, .24, 1)', fill: 'forwards' };
+
+  loader.querySelector('.loader__stage').animate(
+    [{ translate: '0px 0px' }, { translate: `${stageLeft - fromLeft}px ${heroTop - fromTop}px` }],
+    timing,
+  );
 
   const k = FACE_TO.w / FACE_FROM.w;
   loaderFace.animate(
@@ -77,7 +87,7 @@ function finishLoading() {
     timing,
   );
   const shrink = loader.animate(
-    [{ clipPath: `circle(${R}px at ${cx}px ${cy}px)` }, { clipPath: `circle(${r}px at ${cx}px ${cy}px)` }],
+    [{ clipPath: `circle(${R}px at ${cx0}px ${cy0}px)` }, { clipPath: `circle(${r}px at ${cx}px ${cy}px)` }],
     timing,
   );
   // reveal Home only once the circle has landed (hills then draw in: stroke first, then fill)

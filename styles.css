@@ -219,8 +219,8 @@ html.is-loading { overflow: hidden; }
 }
 .loader__stage {
   position: absolute;
-  top: var(--hero-top, 0px);
-  left: var(--stage-left, 0px);
+  top: var(--loader-top, 0px);    /* portrait circle centred on screen (main.js) */
+  left: var(--loader-left, 0px);
   width: 1920px;
   height: 1080px;
   transform: scale(var(--s));
