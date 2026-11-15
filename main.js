@@ -468,6 +468,75 @@ if (graph) {
   });
 }());
 
+// ---------- Boiling white shapes (ears, nose, chin, eyes, brows, earrings): path motion ----------
+// Same idea as the hair, but the points wobble in place instead of rising. Each part has its own
+// amplitude: ears clearly, nose/earrings a bit, chin/eyes/brows only slightly.
+(function faceBoil() {
+  const face = document.querySelector('svg.face');
+  if (!face || reduceMotion) return;
+  // white, non-hair layers in Figma export order (Group 85)
+  const AMPS = [
+    2.2, // nose
+    3,   // left ear
+    1.2, // chin
+    3,   // right ear
+    2,   // right earring
+    1,   // right eye
+    1,   // left eye
+    2,   // left earring
+    1,   // right brow
+    1,   // left brow
+  ];
+  const whites = [...face.children].filter((el) => el.getAttribute('fill') === 'white' && !el.classList.contains('face__hair'));
+  if (whites.length !== AMPS.length) return;
+  const K = 0.5522847;
+  const toPath = (el) => {
+    if (el.tagName.toLowerCase() === 'path') return el;
+    const cx = +el.getAttribute('cx');
+    const cy = +el.getAttribute('cy');
+    const rx = +(el.getAttribute('rx') || el.getAttribute('r'));
+    const ry = +(el.getAttribute('ry') || el.getAttribute('r'));
+    const p = document.createElementNS(SVGNS, 'path');
+    p.setAttribute('fill', 'white');
+    p.setAttribute('d', `M${cx - rx} ${cy}C${cx - rx} ${cy - K * ry} ${cx - K * rx} ${cy - ry} ${cx} ${cy - ry}`
+      + `C${cx + K * rx} ${cy - ry} ${cx + rx} ${cy - K * ry} ${cx + rx} ${cy}`
+      + `C${cx + rx} ${cy + K * ry} ${cx + K * rx} ${cy + ry} ${cx} ${cy + ry}`
+      + `C${cx - K * rx} ${cy + ry} ${cx - rx} ${cy + K * ry} ${cx - rx} ${cy}Z`);
+    el.replaceWith(p);
+    return p;
+  };
+  const shapes = whites.map((el, i) => {
+    const p = toPath(el);
+    const tokens = p.getAttribute('d').match(/[MLCZ]|-?\d*\.?\d+(?:e-?\d+)?/gi);
+    const pts = [];
+    const tpl = [];
+    for (let k = 0; k < tokens.length; k++) {
+      if (/[MLCZ]/i.test(tokens[k])) { tpl.push(tokens[k]); continue; }
+      pts.push([+tokens[k], +tokens[k + 1]]);
+      tpl.push(pts.length - 1);
+      k++;
+    }
+    return { p, pts, tpl, amp: AMPS[i] };
+  });
+  function frame(ms) {
+    const t = ms / 1000;
+    for (const s of shapes) {
+      let d = '';
+      for (const item of s.tpl) {
+        if (typeof item === 'string') { d += item; continue; }
+        const [x, y] = s.pts[item];
+        // smooth per-point wobble: neighbouring points move together, far ones out of step
+        const dx = s.amp * Math.sin(t * 3.3 + x * 0.09 + y * 0.05);
+        const dy = s.amp * Math.cos(t * 2.7 + y * 0.08 - x * 0.04);
+        d += `${(x + dx).toFixed(2)} ${(y + dy).toFixed(2)} `;
+      }
+      s.p.setAttribute('d', d);
+    }
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+}());
+
 // ---------- Burning hair: path motion ----------
 // Every point of the white hair paths (anchors and bézier handles) is pushed by smooth sine "flames":
 // points near the top of the hair lick upward and sway, points near the hairline stay put.
