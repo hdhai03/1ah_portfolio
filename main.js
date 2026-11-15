@@ -537,6 +537,124 @@ if (graph) {
   requestAnimationFrame(frame);
 }());
 
+// ---------- Face looks at the cursor + idle blink ----------
+// The ink "Union" path is split into feature groups (by sub-path bounds) so eyes, brows, nose and mouth
+// can shift toward the cursor, parallax-style, while the outline, ears and hair stay put. Matching white
+// shapes (eye whites, brow and nose highlights) move with their feature. The eyes blink every few seconds.
+(function faceLook() {
+  const face = document.querySelector('svg.face');
+  if (!face || reduceMotion) return;
+  const ink = [...face.children].find((el) => el.getAttribute('fill') === '#0E0A3A');
+  if (!ink) return;
+
+  const bboxOf = (d) => {
+    const p = document.createElementNS(SVGNS, 'path');
+    p.setAttribute('d', d);
+    face.append(p);
+    const b = p.getBBox();
+    p.remove();
+    return b;
+  };
+  // feature of a shape from its bounds (face SVG units, 353 x 426)
+  const classify = (b) => {
+    const cx = b.x + b.width / 2;
+    const cy = b.y + b.height / 2;
+    if (b.width > 250 || b.y < 160) return null;                                     // outline, hair strands
+    if (cy > 205 && cy < 245 && b.height < 32) return cx < 176 ? 'eyeL' : 'eyeR';
+    if (cy > 175 && cy < 205 && b.height < 26) return 'brow';
+    if (cx > 150 && cx < 210 && b.y > 215 && b.height > 60 && cy < 320) return 'nose';
+    if (cy > 330 && cy < 385 && cx > 140 && cx < 220 && b.height < 40) return 'mouth';
+    return null;
+  };
+
+  // split the ink: static sub-paths stay together in one path (keeps the outline's hole), features get their own
+  const subs = ink.getAttribute('d').match(/M[^M]+/g);
+  const groups = { eyeL: [], eyeR: [], brow: [], nose: [], mouth: [] };
+  const still = [];
+  for (const d of subs) {
+    const k = classify(bboxOf(d));
+    (k ? groups[k] : still).push(d);
+  }
+  ink.setAttribute('d', still.join(''));
+  const parts = [];   // { el, kind }
+  for (const [kind, ds] of Object.entries(groups)) {
+    if (!ds.length) continue;
+    const p = document.createElementNS(SVGNS, 'path');
+    p.setAttribute('d', ds.join(''));
+    p.setAttribute('fill', '#0E0A3A');
+    ink.after(p);
+    parts.push({ el: p, kind });
+  }
+  // white highlights that belong to a feature (whites sit under the ink, so z-order is unchanged)
+  for (const el of [...face.children]) {
+    if (el.getAttribute('fill') !== 'white' || el.classList.contains('face__hair')) continue;
+    const kind = classify(el.getBBox());
+    if (kind) parts.push({ el, kind });
+  }
+
+  // eye centres for blinking (from the eye ink)
+  const centre = {};
+  for (const p of parts) {
+    if (p.kind === 'eyeL' || p.kind === 'eyeR') {
+      if (p.el.getAttribute('fill') === '#0E0A3A') {
+        const b = p.el.getBBox();
+        centre[p.kind] = [b.x + b.width / 2, b.y + b.height / 2];
+      }
+    }
+  }
+
+  // how far each feature travels toward the cursor (face units, at full deflection)
+  const REACH = { eyeL: 7, eyeR: 7, brow: 5, nose: 4.5, mouth: 3.5 };
+  const target = [0, 0];
+  const cur = [0, 0];
+  window.addEventListener('pointermove', (e) => {
+    if (root.classList.contains('is-loading')) return;
+    const r = face.getBoundingClientRect();
+    let dx = (e.clientX - (r.left + r.width / 2)) / (innerWidth * 0.45);
+    let dy = (e.clientY - (r.top + r.height / 2)) / (innerHeight * 0.45);
+    const len = Math.hypot(dx, dy);
+    if (len > 1) { dx /= len; dy /= len; }
+    target[0] = dx;
+    target[1] = dy;
+  }, { passive: true });
+  document.documentElement.addEventListener('pointerleave', () => { target[0] = 0; target[1] = 0; });
+
+  // blink scheduling: 2.5–5s apart, sometimes a double blink
+  const BLINK_MS = 190;
+  let blinkAt = performance.now() + 2500;
+  let blinkStart = -1;
+  function nextBlink(now) {
+    blinkAt = now + (Math.random() < 0.25 ? 260 : 2500 + Math.random() * 2500);
+  }
+
+  function frame(now) {
+    cur[0] += (target[0] - cur[0]) * 0.08;
+    cur[1] += (target[1] - cur[1]) * 0.08;
+
+    if (blinkStart < 0 && now >= blinkAt) blinkStart = now;
+    let lid = 1;                                   // 1 = open, ~0.1 = closed
+    if (blinkStart >= 0) {
+      const p = (now - blinkStart) / BLINK_MS;
+      if (p >= 1) { blinkStart = -1; nextBlink(now); } else lid = 1 - 0.9 * Math.sin(Math.PI * p);
+    }
+
+    for (const { el, kind } of parts) {
+      const ox = cur[0] * REACH[kind];
+      let oy = cur[1] * REACH[kind];
+      if (kind === 'brow') oy += 2 * (1 - lid);    // brows dip a touch with the blink
+      if ((kind === 'eyeL' || kind === 'eyeR') && centre[kind]) {
+        const [cx, cy] = centre[kind];
+        el.setAttribute('transform',
+          `translate(${(ox + cx).toFixed(2)} ${(oy + cy).toFixed(2)}) scale(1 ${lid.toFixed(3)}) translate(${-cx} ${-cy})`);
+      } else {
+        el.setAttribute('transform', `translate(${ox.toFixed(2)} ${oy.toFixed(2)})`);
+      }
+    }
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+}());
+
 // ---------- Burning hair: path motion ----------
 // Every point of the white hair paths (anchors and bézier handles) is pushed by smooth sine "flames":
 // points near the top of the hair lick upward and sway, points near the hairline stay put.
